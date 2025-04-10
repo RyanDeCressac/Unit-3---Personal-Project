@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add a Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Blood on the Clocktower - Add a Game</h1>
+    </header>
+    <main>
+        <form action="/submit" method="get" class="form-container">
+            <div class="form-group">
+                <label for="character">Character:</label>
+                <input type="text" id="character" name="character" required>
+            </div>
+            <div class="form-group">
+                <label for="alignment">Alignment:</label>
+                <input type="text" id="alignment" name="alignment" required>
+            </div>
+            <div class="form-group">
+                <label for="win">Did you win?</label>
+                <select id="win" name="win" required>
+                    <option value="True">Yes</option>
+                    <option value="False">No</option>
+                </select>
+            </div>
+            <button type="submit" class="submit-btn">Submit</button>
+        </form>
+    </main>
+    <footer>
+        <p>&copy; 2025 ITS MY WEBSITE MWAHAHAHA</p>
+    </footer>
+</body>
+</html>
