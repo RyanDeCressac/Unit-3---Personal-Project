@@ -57,15 +57,14 @@ PORT = 8000
 
 class CustomHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
-        """Handles GET requests and serves the form page."""
         if self.path == "/":
             self.send_response(200)
             self.send_header("Content-type", "text/html")
             self.end_headers()
             self.wfile.write(open("addgame.html", "rb").read())  # Serve the form page
         else:
-            self.send_response(404)
-            self.end_headers()
+            # Serve other files (like styles.css)
+            return http.server.SimpleHTTPRequestHandler.do_GET(self)
 
     def do_POST(self):
         """Handles POST requests and processes form submissions."""
