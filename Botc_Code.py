@@ -3,6 +3,7 @@ import http.server
 import socketserver
 from urllib.parse import parse_qs
 import hashlib
+import os
 
 # Connects to database
 Connection = sqlite3.connect('botc_database.db')
@@ -17,6 +18,33 @@ sqlite_create_table_query = '''CREATE TABLE IF NOT EXISTS Games (
                             win TEXT NOT NULL);'''
 cursor.execute(sqlite_create_table_query)
 Connection.commit()
+
+# Creates Login table if it doesn't already exist
+sqlite_create_table_query = '''CREATE TABLE IF NOT EXISTS Login (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            username TEXT NOT NULL,
+                            salt TEXT NOT NULL,
+                            password TEXT NOT NULL);'''
+cursor.execute(sqlite_create_table_query)
+Connection.commit()
+
+def validate_register(username, password):
+    """
+    Ensures input meets sanitisation rules before allowing it to be stored.
+    """
+    if not username or not password:
+        return False
+    if not isinstance(username, str) or len(username) > 20:
+        return False
+    if any(char in username for char in "<>/\\:*?\"|!@#$%^&() "):
+        return False
+    if not username.isalpha():
+        return False
+    if not isinstance(password, str) or len(username) < 7:
+        return False
+    if any(char in password for char in "<> "):
+        return False
+    return True
 
 def validate_input(character, alignment, win):
     """
@@ -36,7 +64,27 @@ def validate_input(character, alignment, win):
         return False
     return True
 
-def insertData(character, alignment, win):
+def hash_password(password):
+    salt = os.urandom(32)
+    hashed_password = hashlib.sha512(password + salt).hexdigest()
+    return hashed_password, salt
+
+def insertLoginData(username, password):
+    """
+    Inserts valid data into the Login table.
+    """
+    # Hashes Password
+
+    try:
+        sqlite_insert_with_param = """INSERT INTO Games (username, password) VALUES (?, ?);"""
+        cursor.execute(sqlite_insert_with_param, (username,password))
+        Connection.commit()
+        print("Information successfully committed")
+    except sqlite3.Error as error:
+        print("Error while inserting data into SQLite table:", error)
+
+
+def insertGameData(character, alignment, win):
     """
     Inserts valid data into the Games table.
     """
@@ -89,14 +137,38 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
                 return
 
             # Insert Data if Valid
-            insertData(character, alignment, win)
+            insertGameData(character, alignment, win)
 
             # Success Response
             self.send_response(200)
             self.send_header("Content-type", "text/html")
             self.end_headers()
             self.wfile.write(b"<html><body><h1>Data submitted successfully!</h1></body></html>")
-            
+
+        elif self.path == "/register":
+            content_length = int(self.headers.get("Content-Length", 0))
+            post_data = self.rfile.read(content_length).decode("utf-8")
+            data = parse_qs(post_data)
+
+            username = data.get("username", [""])[0]
+            password = data.get("password", [""])[0]
+
+            # Validate Input
+            if not validate_register(username,password):
+                self.send_response(302)  # Redirect on validation failure
+                self.send_header("Location", "/")  # Redirect back to form
+                self.end_headers()
+                return
+
+            # Insert Data if Valid
+            insertGameData(character, alignment, win)
+
+            # Success Response
+            self.send_response(200)
+            self.send_header("Content-type", "text/html")
+            self.end_headers()
+            self.wfile.write(b"<html><body><h1>Data submitted successfully!</h1></body></html>")
+
         else:
             self.send_response(404)
             self.end_headers()
