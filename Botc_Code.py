@@ -2,13 +2,14 @@ import sqlite3
 import http.server
 import socketserver
 from urllib.parse import parse_qs
+import hashlib
 
 # Connects to database
 Connection = sqlite3.connect('botc_database.db')
 cursor = Connection.cursor()
 print("Successfully Connected to SQLite")
 
-# Creates table if it doesn't already exist
+# Creates Games table if it doesn't already exist
 sqlite_create_table_query = '''CREATE TABLE IF NOT EXISTS Games (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
                             character TEXT NOT NULL,
@@ -57,17 +58,20 @@ PORT = 8000
 
 class CustomHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
-        if self.path == "/":
+        if self.path == "/" or self.path == "/index.html":  # Directs to index.html
             self.send_response(200)
             self.send_header("Content-type", "text/html")
             self.end_headers()
-            self.wfile.write(open("addgame.html", "rb").read())  # Serve the form page
+            self.wfile.write(open("index.html", "rb").read())  # Serve index.html
+
         else:
             # Serve other files (like styles.css)
             return http.server.SimpleHTTPRequestHandler.do_GET(self)
 
     def do_POST(self):
-        """Handles POST requests and processes form submissions."""
+        '''
+        Handles POST requests and processes form submissions.
+        '''
         if self.path == "/submit":
             content_length = int(self.headers.get("Content-Length", 0))
             post_data = self.rfile.read(content_length).decode("utf-8")
