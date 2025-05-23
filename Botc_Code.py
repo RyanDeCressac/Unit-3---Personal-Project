@@ -2,8 +2,6 @@ import sqlite3
 import http.server
 import socketserver
 from urllib.parse import parse_qs
-import hashlib
-import os
 
 # Connects to database
 Connection = sqlite3.connect('botc_database.db')
@@ -23,7 +21,6 @@ Connection.commit()
 sqlite_create_table_query = '''CREATE TABLE IF NOT EXISTS Login (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
                             username TEXT NOT NULL,
-                            salt TEXT NOT NULL,
                             password TEXT NOT NULL);'''
 cursor.execute(sqlite_create_table_query)
 Connection.commit()
@@ -43,6 +40,8 @@ def validate_register(username, password):
     if not isinstance(password, str) or len(username) < 7:
         return False
     if any(char in password for char in "<> "):
+        return False
+    if checkUsername(username) == True:
         return False
     return True
 
@@ -64,25 +63,17 @@ def validate_input(character, alignment, win):
         return False
     return True
 
-def hash_password(password):
-    salt = os.urandom(32)
-    hashed_password = hashlib.sha512(password + salt).hexdigest()
-    return hashed_password, salt
-
 def insertLoginData(username, password):
     """
     Inserts valid data into the Login table.
     """
-    # Hashes Password
-
     try:
-        sqlite_insert_with_param = """INSERT INTO Games (username, password) VALUES (?, ?);"""
-        cursor.execute(sqlite_insert_with_param, (username,password))
+        sqlite_insert_with_param = """INSERT INTO Login (username, password) VALUES (?, ?);"""
+        cursor.execute(sqlite_insert_with_param, (username, password))
         Connection.commit()
         print("Information successfully committed")
     except sqlite3.Error as error:
         print("Error while inserting data into SQLite table:", error)
-
 
 def insertGameData(character, alignment, win):
     """
@@ -101,8 +92,32 @@ def insertGameData(character, alignment, win):
     except sqlite3.Error as error:
         print("Error while inserting data into SQLite table:", error)
 
+def checkLogin(username, password):
+    '''
+    Checks if username and password are in the database
+    '''
+    cursor.execute('SELECT username, password FROM Login')
+    rows = cursor.fetchall()
+    for row in rows:
+        if row[0] == username and row[1] == password:
+            return True
+    return False
+
+def checkUsername(username):
+    '''
+    Checks if username is in the database
+    '''
+    cursor.execute('SELECT username FROM Login')
+    usernames = cursor.fetchall()
+    for saved_username in usernames:
+        if  username == saved_username[0]:
+            return True
+    return False
+
 # Defines port
 PORT = 8000
+
+checkUsername("balls")
 
 class CustomHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
@@ -121,6 +136,9 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
         Handles POST requests and processes form submissions.
         '''
         if self.path == "/submit":
+            '''
+            Logging a game
+            '''
             content_length = int(self.headers.get("Content-Length", 0))
             post_data = self.rfile.read(content_length).decode("utf-8")
             data = parse_qs(post_data)
@@ -146,6 +164,9 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(b"<html><body><h1>Data submitted successfully!</h1></body></html>")
 
         elif self.path == "/register":
+            '''
+            Registering an account
+            '''
             content_length = int(self.headers.get("Content-Length", 0))
             post_data = self.rfile.read(content_length).decode("utf-8")
             data = parse_qs(post_data)
@@ -155,19 +176,45 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
 
             # Validate Input
             if not validate_register(username,password):
-                self.send_response(302)  # Redirect on validation failure
-                self.send_header("Location", "/")  # Redirect back to form
+                # Unsuccess Response
+                self.send_response(200)
+                self.send_header("Content-type", "text/html")
                 self.end_headers()
+                self.wfile.write(open("register.html", "rb").read())  # Serve index.html
                 return
+            
+            else:
+                #You would hash here, but since this is an offline website, hashing is unneccesary
 
-            # Insert Data if Valid
-            insertGameData(character, alignment, win)
+                # Success Response
+                insertLoginData(username, password)
+                self.send_response(200)
+                self.send_header("Content-type", "text/html")
+                self.end_headers()
+                self.wfile.write(open("index.html", "rb").read())  # Serve index.html
+        
+        elif self.path == "/login":
+            '''
+            Logging in
+            '''
+            content_length = int(self.headers.get("Content-Length", 0))
+            post_data = self.rfile.read(content_length).decode("utf-8")
+            data = parse_qs(post_data)
 
-            # Success Response
-            self.send_response(200)
-            self.send_header("Content-type", "text/html")
-            self.end_headers()
-            self.wfile.write(b"<html><body><h1>Data submitted successfully!</h1></body></html>")
+            username = data.get("username", [""])[0]
+            password = data.get("password", [""])[0]
+
+            if checkLogin(username, password) == True:
+                self.send_response(200)
+                self.send_header("Content-type", "text/html")
+                self.end_headers()
+                self.wfile.write(open("mainpage.html", "rb").read())  # Serve mainpage.html
+            
+            else:
+                self.send_response(200)
+                self.send_header("Content-type", "text/html")
+                self.end_headers()
+                self.wfile.write(open("index.html", "rb").read())  # Serve index.html
 
         else:
             self.send_response(404)
