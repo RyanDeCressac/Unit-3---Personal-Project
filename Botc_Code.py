@@ -2,6 +2,7 @@ import sqlite3
 import http.server
 import socketserver
 from urllib.parse import parse_qs
+import pandas as pd
 
 # Connects to database
 Connection = sqlite3.connect('botc_database.db')
@@ -143,9 +144,18 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
             post_data = self.rfile.read(content_length).decode("utf-8")
             data = parse_qs(post_data)
 
-            character = data.get("character", [""])[0]
-            alignment = data.get("alignment", [""])[0]
-            win = data.get("win", [""])[0]
+            character = data.get("character", [""])[0] # What character were you playing
+            character_change = data.get("character_change", [""])[0] # Did your character change
+            starting_character = data.get("starting_character", [""])[0] # If you did change character, what character did you start as
+            alignment = data.get("alignment", [""])[0] # What alignment were you
+            alignment_change = data.get("alignment_change", [""])[0] # Did your alignment change
+            win = data.get("win", [""])[0] # Did you win?
+            game_end = data.get("game_end", [""]) # How did the game end?
+            death = data.get("death", [""]) # Did you die?
+            death_type = data.get("death_type", [""]) # If you did die, how did you die
+            script_type = data.get("death_type", [""]) # What script were you playing
+            player_count = data.get("player_count", [""]) # How many non-traveller players were there
+            traveller_count = data.get("traveller_type", [""]) # How many travellers were there  
 
             # Validate Input
             if not validate_input(character, alignment, win):
