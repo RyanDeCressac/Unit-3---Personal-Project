@@ -5,6 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add a Game</title>
     <link rel="stylesheet" href="styles.css">
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch("character_type.csv")
+                .then(response => response.text())
+                .then(data => {
+                    const lines = data.split("\n");
+                    const dropdowns = document.querySelectorAll(".character-dropdown"); // Select all dropdowns
+                    let currentOptGroup = null;
+
+                    lines.forEach(line => {
+                        const values = line.split(",").map(value => value.replace(/"/g, "").trim()); // Remove all quotes
+
+                        if (values.length > 1) {
+                            // Create a new optgroup
+                            currentOptGroup = document.createElement("optgroup");
+                            currentOptGroup.label = values[0];
+
+                            dropdowns.forEach(select => {
+                                const optGroupClone = currentOptGroup.cloneNode(true);
+                                select.appendChild(optGroupClone);
+                            });
+
+                            // Add characters under the optgroup
+                            values.slice(1).forEach(character => {
+                                let option = document.createElement("option");
+                                option.value = character;
+                                option.textContent = character;
+
+                                dropdowns.forEach(select => {
+                                    select.appendChild(option.cloneNode(true));
+                                });
+                            });
+                        }
+                    });
+                })
+                .catch(error => console.error("Error loading characters:", error));
+        });
+        function toggleField(triggerId, targetId, disableValue) {
+            var trigger = document.getElementById(triggerId);
+            var target = document.getElementById(targetId);
+
+            if (trigger.value === disableValue) {
+                target.disabled = true;
+                target.value = ""; // Clears the field
+            } else {
+                target.disabled = false;
+            }
+        }
+    </script>
+
 </head>
 <body>
     <header>
@@ -14,8 +65,34 @@
         <form action="/submit" method="post" class="form-container">
             <div class="form-group">
                 <label for="character">Character:</label>
-                <input type="text" id="character" name="character" required>
+                <select name="character" class="character-dropdown">
+                    <option value="">Select a character...</option>
+                </select>
             </div>
+
+            <div class="form-group">
+                <label for="character_change">Did your character change?</label>
+                <select id="character_change" name="character_change" onchange="toggleField('character_change', 'starting_character', 'False')">
+                    <option value="True">Yes</option>
+                    <option value="False">No</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="starting_character">Starting Character:</label>
+                <select id="starting_character" name="starting_character" class="character-dropdown">
+                    <option value="">Select a starting character...</option>
+                </select>
+            </div>
+
+
+            <div class="form-group">
+                <label for="alignment">Did you start as a different alignment?</label>
+                <select id="alignment" name="alignment" required>
+                    <option value="True">Yes</option>
+                    <option value="False">No</option>
+                </select>
+            </div>
+
             <div class="form-group">
                 <label for="alignment">Alignment:</label>
                 <select id="alignment" name="alignment" required>
@@ -23,6 +100,7 @@
                     <option value="Evil">Evil</option>
                 </select>
             </div>
+
             <div class="form-group">
                 <label for="win">Did you win?</label>
                 <select id="win" name="win" required>
@@ -30,9 +108,37 @@
                     <option value="False">No</option>
                 </select>
             </div>
+
+            <div class="form-group">
+                <label for="death">Did you die?</label>
+                <select id="death" name="death" onchange="toggleField('death', 'death_type', 'False')">
+                    <option value="True">Yes</option>
+                    <option value="False">No</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="death_type">How did you die?</label>
+                <input type="text" id="death_type" name="death_type">
+            </div>
+
+            <div class="form-group">
+                <label for="script_type">What script were you playing?</label>
+                <input type="text" id="script_type" name="script_type" required>
+            </div>
+
+            <div class="form-group">
+                <label for="player_count">Number of non-traveller players:</label>
+                <input type="number" id="player_count" name="player_count" min="5" max="15" required>
+            </div>
+
+            <div class="form-group">
+                <label for="traveller_count">Number of travellers:</label>
+                <input type="number" id="traveller_count" name="traveller_count" min="0" required>
+            </div>
+
             <button type="submit" class="submit-btn">Submit</button>
         </form>
-
     </main>
     <footer>
         <p>&copy; 2025 ITS MY WEBSITE MWAHAHAHA</p>

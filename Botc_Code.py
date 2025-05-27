@@ -3,6 +3,7 @@ import http.server
 import socketserver
 from urllib.parse import parse_qs
 import pandas as pd
+import csv
 
 # Connects to database
 Connection = sqlite3.connect('botc_database.db')
@@ -13,8 +14,17 @@ print("Successfully Connected to SQLite")
 sqlite_create_table_query = '''CREATE TABLE IF NOT EXISTS Games (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
                             character TEXT NOT NULL,
+                            character_change TEXT,
+                            starting_character TEXT,
                             alignment TEXT NOT NULL,
-                            win TEXT NOT NULL);'''
+                            alignment_change TEXT,
+                            win TEXT NOT NULL,
+                            game_end TEXT NOT NULL,
+                            death TEXT NOT NULL,
+                            death_type TEXT,
+                            script_type TEXT NOT NULL,
+                            player_count INTEGER NOT NULL,
+                            traveller_count INTEGER);'''
 cursor.execute(sqlite_create_table_query)
 Connection.commit()
 
@@ -115,10 +125,19 @@ def checkUsername(username):
             return True
     return False
 
+def findCharacterType(character):
+    '''
+    Checks if character is in the character_type.csv file
+    '''
+    with open('character_type.csv', mode='r', newline='', encoding='utf-8') as file:
+        reader = csv.reader(file)
+        for row in reader:
+            if character.capitalize() in row:  # Checks if the string exists in any row
+                return row[0]
+    return None
+
 # Defines port
 PORT = 8000
-
-checkUsername("balls")
 
 class CustomHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
