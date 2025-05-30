@@ -13,11 +13,12 @@ print("Successfully Connected to SQLite")
 # Creates Games table if it doesn't already exist
 sqlite_create_table_query = '''CREATE TABLE IF NOT EXISTS Games (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            username TEXT NOT NULL,
                             character TEXT NOT NULL,
-                            character_change TEXT,
+                            character_change TEXT NOT NULL,
                             starting_character TEXT,
                             alignment TEXT NOT NULL,
-                            alignment_change TEXT,
+                            alignment_change TEXT NOT NULL,
                             win TEXT NOT NULL,
                             death TEXT NOT NULL,
                             death_type TEXT,
@@ -59,26 +60,45 @@ def validate_input(character, character_change, starting_character, alignment, a
     """
     Ensures input meets sanitisation rules before allowing it to be stored.
     """
-    if not character or not character_change or not alignment or not alignment_change or not win or not death or not death_type or not script_type or not player_count or not traveller_count:
-        return False # Missing required input
-    if not isinstance(character, str) or findCharacterType(character) == None:
-        return False # Invalid character
+    if not character or not character_change or not alignment or not alignment_change or not win or not death or not script_type or not player_count:
+        print("Missing required input")
+        return False
+    if not isinstance(character, str) or findCharacterType(character) is None:
+        print("Invalid character value")
+        return False
+    if character_change not in ["True", "False"]:
+        print("Invalid character change value")
+        return False
+    if character_change == "True":
+        if not isinstance(starting_character, str) or findCharacterType(starting_character) is None:
+            print("Invalid starting character")
+            return False
     if alignment not in ["Good", "Evil"]:
-        return False # Invalid value
+        print("Invalid alignment value")
+        return False
     if alignment_change not in ["True", "False"]:
-        return False # Invalid value
+        print("Invalid alignment change value")
+        return False
     if win not in ["True", "False"]:
-        return False # Invalid value
+        print("Invalid win value")
+        return False
     if death not in ["True", "False"]:
-        return False # Invalid value
-    if death_type not in ["Day", "Night"]:
-        return False # Invalid value
+        print("Invalid death value")
+        return False
+    if death == "True":
+        if death_type not in ["Day", "Night"]:
+            print("Invalid death type")
+            return False
     if script_type not in ["tb", "bmr", "snv", "custom"]:
-        return False # Invalid value
+        print("Invalid script type")
+        return False
     if player_count < 5 or player_count > 15:
-        return False # Invalid value
+        print("Invalid player count")
+        return False
     if traveller_count < 0:
-        return False # Invalid value
+        print("Invalid traveller count")
+        return False
+    print("All inputs valid")
     return True
 
 def insertLoginData(username, password):
@@ -93,18 +113,14 @@ def insertLoginData(username, password):
     except sqlite3.Error as error:
         print("Error while inserting data into SQLite table:", error)
 
-def insertGameData(character, alignment, win):
+def insertGameData(character, character_change, starting_character, alignment, alignment_change, win, death, death_type, script_type, player_count, traveller_count):
     """
     Inserts valid data into the Games table.
     """
-    # Capitalizes variables
-    character = character.capitalize()
-    alignment = alignment.capitalize()
-    win = win.capitalize()
 
     try:
-        sqlite_insert_with_param = """INSERT INTO Games (character, alignment, win) VALUES (?, ?, ?);"""
-        cursor.execute(sqlite_insert_with_param, (character, alignment, win))
+        sqlite_insert_with_param = """INSERT INTO Games (username, character, character_change, starting_character, alignment, alignment_change, win, death, death_type, script_type, player_count, traveller_count) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"""
+        cursor.execute(sqlite_insert_with_param, (username, character, character_change, starting_character, alignment, alignment_change, win, death, death_type, script_type, player_count, traveller_count))
         Connection.commit()
         print("Information successfully committed")
     except sqlite3.Error as error:
@@ -175,32 +191,36 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
             alignment = data.get("alignment", [""])[0] # What alignment were you
             alignment_change = data.get("alignment_change", [""])[0] # Did your alignment change
             win = data.get("win", [""])[0] # Did you win?
-            death = data.get("death", [""]) # Did you die?
-            death_type = data.get("death_type", [""]) # If you did die, when did you die
-            script_type = data.get("script_type", [""]) # What script were you playing
-            player_count = int(data.get("player_count", [""])) # How many non-traveller players were there
-            traveller_count = int(data.get("traveller_count", [""])) # How many travellers were there  
+            death = data.get("death", [""])[0] # Did you die?
+            death_type = data.get("death_type", [""])[0] # If you did die, when did you die
+            script_type = data.get("script_type", [""])[0] # What script were you playing
+            player_count = int(data.get("player_count", [""])[0]) # How many non-traveller players were there
+            traveller_count = int(data.get("traveller_count", [""])[0]) # How many travellers were there  
         
             # Validate Input
             if not validate_input(character, character_change, starting_character, alignment, alignment_change, win, death, death_type, script_type, player_count, traveller_count):
                 self.send_response(302)  # Redirect on validation failure
-                self.send_header("Location", "/")  # Redirect back to form
+                self.send_header("Content-type", "text/html")
                 self.end_headers()
+                self.wfile.write(open("addgame.html", "rb").read())  # Serve index.html
                 return
 
             # Insert Data if Valid
-            insertGameData(character, alignment, win)
+            insertGameData(character, character_change, starting_character, alignment, alignment_change, win, death, death_type, script_type, player_count, traveller_count)
 
             # Success Response
             self.send_response(200)
             self.send_header("Content-type", "text/html")
             self.end_headers()
-            self.wfile.write(b"<html><body><h1>Data submitted successfully!</h1></body></html>")
+            self.wfile.write(open("confirmation.html", "rb").read())  # Serve index.html
+            
 
         elif self.path == "/register":
             '''
             Registering an account
             '''
+            global username
+
             content_length = int(self.headers.get("Content-Length", 0))
             post_data = self.rfile.read(content_length).decode("utf-8")
             data = parse_qs(post_data)
@@ -211,7 +231,7 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
             # Validate Input
             if not validate_register(username,password):
                 # Unsuccess Response
-                self.send_response(200)
+                self.send_response(302)
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
                 self.wfile.write(open("register.html", "rb").read())  # Serve index.html
