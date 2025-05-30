@@ -84,20 +84,20 @@
                 </select>
             </div>
 
-
-            <div class="form-group">
-                <label for="alignment">Did you start as a different alignment?</label>
-                <select id="alignment" name="alignment" required>
-                    <option value="True">Yes</option>
-                    <option value="False">No</option>
-                </select>
-            </div>
-
             <div class="form-group">
                 <label for="alignment">Alignment:</label>
                 <select id="alignment" name="alignment" required>
                     <option value="Good">Good</option>
                     <option value="Evil">Evil</option>
+                </select>
+            </div>
+
+
+            <div class="form-group">
+                <label for="alignment_change">Did you start as a different alignment?</label>
+                <select id="alignment_change" name="alignment_change" required>
+                    <option value="True">Yes</option>
+                    <option value="False">No</option>
                 </select>
             </div>
 
@@ -111,20 +111,28 @@
 
             <div class="form-group">
                 <label for="death">Did you die?</label>
-                <select id="death" name="death" onchange="toggleField('death', 'death_type', 'False')">
-                    <option value="True">Yes</option>
-                    <option value="False">No</option>
+                <select id="death" name="death" onchange="toggleField('death', 'death_type', 'False')" required>
+                    <option value=True>Yes</option>
+                    <option value=False>No</option>
                 </select>
             </div>
 
             <div class="form-group">
-                <label for="death_type">How did you die?</label>
-                <input type="text" id="death_type" name="death_type">
+                <label for="death_type">When did you die?</label>
+                <select id="death_type" name="death_type">
+                    <option value="Day">Day</option>
+                    <option value="Night">Night</option>
+                </select>
             </div>
 
             <div class="form-group">
                 <label for="script_type">What script were you playing?</label>
-                <input type="text" id="script_type" name="script_type" required>
+                <select id="script_type" name="script_type" required>
+                    <option value="tb">Trouble Brewing</option>
+                    <option value="bmr">Bad Moon Rising</option>
+                    <option value="snv">Sects and Violets</option>
+                    <option value="custom">Custom</option>
+                </select>
             </div>
 
             <div class="form-group">

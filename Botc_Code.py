@@ -19,7 +19,6 @@ sqlite_create_table_query = '''CREATE TABLE IF NOT EXISTS Games (
                             alignment TEXT NOT NULL,
                             alignment_change TEXT,
                             win TEXT NOT NULL,
-                            game_end TEXT NOT NULL,
                             death TEXT NOT NULL,
                             death_type TEXT,
                             script_type TEXT NOT NULL,
@@ -56,22 +55,30 @@ def validate_register(username, password):
         return False
     return True
 
-def validate_input(character, alignment, win):
+def validate_input(character, character_change, starting_character, alignment, alignment_change, win, death, death_type, script_type, player_count, traveller_count):
     """
     Ensures input meets sanitisation rules before allowing it to be stored.
     """
-    if not character or not alignment or not win:
-        return False
+    if not character or not character_change or not alignment or not alignment_change or not win or not death or not death_type or not script_type or not player_count or not traveller_count:
+        return False # Missing required input
+    if not isinstance(character, str) or findCharacterType(character) == None:
+        return False # Invalid character
     if alignment not in ["Good", "Evil"]:
-        return False
+        return False # Invalid value
+    if alignment_change not in ["True", "False"]:
+        return False # Invalid value
     if win not in ["True", "False"]:
-        return False
-    if not isinstance(character, str) or len(character) > 20:
-        return False
-    if any(char in character for char in "<>/\\:*?\"|!@#$%^&() "):
-        return False
-    if not character.isalpha():
-        return False
+        return False # Invalid value
+    if death not in ["True", "False"]:
+        return False # Invalid value
+    if death_type not in ["Day", "Night"]:
+        return False # Invalid value
+    if script_type not in ["tb", "bmr", "snv", "custom"]:
+        return False # Invalid value
+    if player_count < 5 or player_count > 15:
+        return False # Invalid value
+    if traveller_count < 0:
+        return False # Invalid value
     return True
 
 def insertLoginData(username, password):
@@ -162,22 +169,20 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
             content_length = int(self.headers.get("Content-Length", 0))
             post_data = self.rfile.read(content_length).decode("utf-8")
             data = parse_qs(post_data)
-
             character = data.get("character", [""])[0] # What character were you playing
             character_change = data.get("character_change", [""])[0] # Did your character change
             starting_character = data.get("starting_character", [""])[0] # If you did change character, what character did you start as
             alignment = data.get("alignment", [""])[0] # What alignment were you
             alignment_change = data.get("alignment_change", [""])[0] # Did your alignment change
             win = data.get("win", [""])[0] # Did you win?
-            game_end = data.get("game_end", [""]) # How did the game end?
             death = data.get("death", [""]) # Did you die?
-            death_type = data.get("death_type", [""]) # If you did die, how did you die
-            script_type = data.get("death_type", [""]) # What script were you playing
-            player_count = data.get("player_count", [""]) # How many non-traveller players were there
-            traveller_count = data.get("traveller_type", [""]) # How many travellers were there  
-
+            death_type = data.get("death_type", [""]) # If you did die, when did you die
+            script_type = data.get("script_type", [""]) # What script were you playing
+            player_count = int(data.get("player_count", [""])) # How many non-traveller players were there
+            traveller_count = int(data.get("traveller_count", [""])) # How many travellers were there  
+        
             # Validate Input
-            if not validate_input(character, alignment, win):
+            if not validate_input(character, character_change, starting_character, alignment, alignment_change, win, death, death_type, script_type, player_count, traveller_count):
                 self.send_response(302)  # Redirect on validation failure
                 self.send_header("Location", "/")  # Redirect back to form
                 self.end_headers()
