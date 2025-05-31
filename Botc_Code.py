@@ -63,6 +63,9 @@ def validate_input(character, character_change, starting_character, alignment, a
     if not character or not character_change or not alignment or not alignment_change or not win or not death or not script_type or not player_count:
         print("Missing required input")
         return False
+    if not username:
+        print("Username is not set")
+        return False
     if not isinstance(character, str) or findCharacterType(character) is None:
         print("Invalid character value")
         return False
@@ -169,6 +172,32 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header("Content-type", "text/html")
             self.end_headers()
             self.wfile.write(open("index.html", "rb").read())  # Serve index.html
+        
+        elif self.path == "/run_function.html":  # Directs to blankpage.html and sets up database
+            query = "SELECT id, character, character_change, starting_character, alignment, alignment_change, win, death, death_type, script_type, player_count, traveller_count FROM Games WHERE username = ? ORDER BY id DESC"
+            df = pd.read_sql_query(query, Connection, params=(username,))
+            html_content = df.to_html(index=False, header=True, justify='center', border=0, classes='table table-striped')
+            html_page = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>SQL Query Results</title>
+                <style>
+                    table {{ border-collapse: collapse; width: 50%; }}
+                    th, td {{ border: 1px solid black; padding: 8px; text-align: left; }}
+                </style>
+            </head>
+            <body>
+                <h2>SQL Query Results</h2>
+                {html_content}
+                <button onclick="window.location.href='mainpage.html'">Return to Menu</button>
+            </body>
+            </html>
+            """
+
+            with open("blankpage.html", "w") as file:
+                file.write(html_page)
+                self.send_response(200)
 
         else:
             # Serve other files (like styles.css)

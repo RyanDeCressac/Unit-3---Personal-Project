@@ -3,9 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <title>Main Page</title>
+    <script>
+        function callReload() {
+            fetch('/run_function.html')  // Send request to Python server
+        }
+    </script>
 </head>
 <body>
     <h2>Menu</h2>
     <button onclick="window.location.href='addgame.html'">Log a Game</button>
+    <h2>Edit Games</h2>
+    <button onclick="callReload(); window.location.href='blankpage.html';">Run Python Function</button>
 </body>
 </html>
