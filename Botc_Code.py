@@ -120,7 +120,6 @@ def insertGameData(character, character_change, starting_character, alignment, a
     """
     Inserts valid data into the Games table.
     """
-
     try:
         sqlite_insert_with_param = """INSERT INTO Games (username, character, character_change, starting_character, alignment, alignment_change, win, death, death_type, script_type, player_count, traveller_count) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"""
         cursor.execute(sqlite_insert_with_param, (username, character, character_change, starting_character, alignment, alignment_change, win, death, death_type, script_type, player_count, traveller_count))
@@ -162,6 +161,17 @@ def findCharacterType(character):
                 return row[0]
     return None
 
+def deleteRow(table, id):
+    '''
+    Deletes a row from a given SQL table
+    '''
+    try: 
+        query = f"DELETE FROM {table} WHERE id = ?"
+        cursor.execute(query, (id,))
+        Connection.commit()
+    except:
+        print(f"Failed to delete row {id}")
+
 # Defines port
 PORT = 8000
 
@@ -174,9 +184,13 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(open("index.html", "rb").read())  # Serve index.html
         
         elif self.path == "/run_function.html":  # Directs to blankpage.html and sets up database
-            query = "SELECT id, character, character_change, starting_character, alignment, alignment_change, win, death, death_type, script_type, player_count, traveller_count FROM Games WHERE username = ? ORDER BY id DESC"
+            query = "SELECT character, character_change, starting_character, alignment, alignment_change, win, death, death_type, script_type, player_count, traveller_count FROM Games WHERE username = ? ORDER BY id DESC"
             df = pd.read_sql_query(query, Connection, params=(username,))
-            html_content = df.to_html(index=False, header=True, justify='center', border=0, classes='table table-striped')
+
+            df['Edit'] = df.index.map(lambda i: f'<button onclick="editRow({i})">Edit</button>')
+            df['Delete'] = df.index.map(lambda i: f'<button onclick="deleteRow({i})">Delete</button>')
+
+            html_content = df.to_html(index=False, escape=False, header=True, justify='center', border=0, classes='table table-striped')
             html_page = f"""
             <!DOCTYPE html>
             <html>
@@ -186,11 +200,24 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
                     table {{ border-collapse: collapse; width: 50%; }}
                     th, td {{ border: 1px solid black; padding: 8px; text-align: left; }}
                 </style>
+                <script>
+                    function editRow(index) {{
+                        alert('Editing row ' + index);
+                        // Implement further edit functionality here
+                    }}
+
+                    function deleteRow(index) {{
+                        alert('Deleting row ' + index);
+                        // Implement deletion logic here
+                    }}
+                </script>
             </head>
             <body>
                 <h2>SQL Query Results</h2>
                 {html_content}
-                <button onclick="window.location.href='mainpage.html'">Return to Menu</button>
+                <div style="margin-top: 20px;">
+                    <button onclick="window.location.href='mainpage.html'">Return to Menu</button>
+                </div>
             </body>
             </html>
             """
