@@ -43,6 +43,46 @@
                 })
                 .catch(error => console.error("Error loading characters:", error));
         });
+
+        document.addEventListener("DOMContentLoaded", function () {
+                        const savedGameData = localStorage.getItem("editGameData");
+
+                        if (savedGameData) {
+                            const data = JSON.parse(savedGameData);
+
+                            function populateCharacterDropdown() {
+                                const characterDropdown = document.querySelector("select[name='character']");
+                                
+                                if (characterDropdown.options.length > 1) { // Ensure characters exist before setting value
+                                    characterDropdown.value = data.character;
+                                    localStorage.removeItem("editGameData"); // Remove only after setting character
+                                } else {
+                                    setTimeout(populateCharacterDropdown, 100); // Retry until populated
+                                }
+                            }
+
+                            populateCharacterDropdown(); // Call function to attempt setting character
+                            
+                            // Set other form fields as usual
+                            document.querySelector("select[name='character_change']").value = data.character_change;
+                            document.querySelector("select[name='starting_character']").value = data.starting_character;
+                            document.querySelector("select[name='alignment']").value = data.alignment;
+                            document.querySelector("select[name='alignment_change']").value = data.alignment_change;
+                            document.querySelector("select[name='win']").value = data.win;
+                            document.querySelector("select[name='death']").value = data.death;
+                            document.querySelector("select[name='death_type']").value = data.death_type;
+                            document.querySelector("select[name='script_type']").value = data.script_type;
+                            document.querySelector("input[name='player_count']").value = data.player_count;
+                            document.querySelector("input[name='traveller_count']").value = data.traveller_count;
+                            
+                            toggleField('character_change', 'starting_character', 'False')
+                            toggleField('death', 'death_type', 'False')
+                            
+                            // Remove stored data once populated
+                            localStorage.removeItem("editGameData");
+            }
+        });
+                            
         function toggleField(triggerId, targetId, disableValue) {
             var trigger = document.getElementById(triggerId);
             var target = document.getElementById(targetId);

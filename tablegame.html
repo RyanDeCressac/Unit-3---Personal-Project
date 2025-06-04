@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <title>SQL Query Results</title>
+                <style>
+                    table { border-collapse: collapse; width: 50%; }
+                    th, td { border: 1px solid black; padding: 8px; text-align: left; }
+                </style>
+                <script>
+                     function editRow(rowId) {
+                        fetch(`/get_game_data?id=${rowId}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                // Store the game data in localStorage for retrieval in addgame.html
+                                localStorage.setItem("editGameData", JSON.stringify(data));
+                                
+                                // Redirect to addgame.html
+                                window.location.href = "addgame.html";
+                            });
+                    }
+
+                    function deleteRow(rowId) {
+                        fetch("/delete", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({ id: rowId })
+                        })
+                        .then(response => response.text())
+                        .then(data => console.log(`Deleted row ${rowId}: ${data}`));
+                    }
+
+                    function updateContent() {
+                        fetch("updated_content.html")
+                            .then(response => response.text())
+                            .then(data => {
+                                document.getElementById("content").innerHTML = data;
+                            });
+                    }
+                    
+                    function callReload() {
+                        fetch('/run_function.html')  // Send request to Python server
+                    }
+                </script>
+            </head>
+            <body>
+                <h2>Your Games</h2>
+                    <div id="content">
+                    <!-- Dynamically updated with games here -->
+                    </div>
+                <div style="margin-top: 20px;">
+                    <button onclick="callReload();updateContent();">Update Content</button>
+                    <button onclick="window.location.href='mainpage.html'">Return to Menu</button>
+                </div>
+            </body>
+            </html>
+            
