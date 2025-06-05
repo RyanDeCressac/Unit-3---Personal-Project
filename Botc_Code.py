@@ -5,6 +5,7 @@ import urllib.parse
 import pandas as pd
 import csv
 import json
+import matplotlib.pyplot as plt    
 
 # Connects to database
 Connection = sqlite3.connect('botc_database.db')
@@ -195,11 +196,10 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(open("index.html", "rb").read())  # Serve index.html
         
-        elif self.path == "/run_function.html":  # Directs to blankpage.html and sets up database
-            query = "SELECT id, character, character_change, starting_character, alignment, alignment_change, win, death, death_type, script_type, player_count, traveller_count FROM Games WHERE username = ? ORDER BY id DESC"
+        elif self.path == "/run_function.html":  # Directs to tablegame.html and sets up database
+            query = "SELECT * FROM Games WHERE username = ? ORDER BY id DESC"
             df = pd.read_sql_query(query, Connection, params=(username,))
-    
-            df['Edit'] = df.index.map(lambda i: f'<button onclick="editRow({df.loc[i,"id"]});">Edit</button>')
+
             df['Delete'] = df.index.map(lambda i: f'<button onclick="deleteRow({df.loc[i,"id"]});">Delete</button>')
 
             html_table = df.to_html(index=False, escape=False, header=True, justify='center', border=0, classes='table table-striped')
@@ -222,30 +222,55 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
             with open("updated_content.html", "w") as file:
                 file.write(html_content)
         
-        elif self.path.startswith("/get_game_data"):
-            parsed_url = urllib.parse.urlparse(self.path)
-            query_components = urllib.parse.parse_qs(parsed_url.query)
-            game_id = query_components.get("id", [None])[0]
+        elif self.path == "/get_info.html": # Gets facts and figures for showdata.html
+            query = "SELECT * FROM Games WHERE username = ?" #Sanatising using paramaters WRITE IN THINGY
+            df = pd.read_sql_query(query, Connection, params=(username,))
 
-            if game_id:
-                query = "SELECT * FROM Games WHERE id = ?"
-                cursor.execute(query, (game_id,))
-                row = cursor.fetchone()
+            totalGames = int(df.shape[0])
+            totalGoodGames = int(df[df["alignment"] == "Good"].shape[0])
+            totalEvilGames = totalGames - totalGoodGames
 
-                if row:
-                    # Convert row to dictionary using column names
-                    column_names = [desc[0] for desc in cursor.description]
-                    row_dict = dict(zip(column_names, row))
+            totalWins = int(df[df["win"] == "True"].shape[0])
+            totalGoodWins = int(df[(df["alignment"] == "Good") & (df["win"] == "True")].shape[0])
+            totalEvilWins = totalWins - totalGoodWins
+            
+            df["character_type"] = df["character"].apply(findCharacterType)
 
-                    self.send_response(200)
-                    self.send_header("Content-Type", "application/json")
-                    self.end_headers()
-                    self.wfile.write(json.dumps(row_dict).encode("utf-8"))
-                else:
-                    self.send_error(404, "Game data not found")
-            else:
-                self.send_error(400, "Invalid request: Missing game ID")
+            character_types = []
+            for index, row in df.iterrows():
+                character_types.append(f"{row['character_type']}")
+            
+            totalTownsfolkGames = character_types.count("Townsfolk")
+            totalOutsiderGames = character_types.count("Outsider")
+            totalMinionGames = character_types.count("Minion")
+            totalDemonGames = character_types.count("Demon")
+            totalTravellerGames = character_types.count("Traveller")
 
+            startingGoodGames = int(df[(df["alignment"] == "Good") & (df["alignment_change"] == "False")].shape[0]) + int(df[(df["alignment"] == "Evil") & (df["alignment_change"] == "True")].shape[0])
+            startingEvilGames = totalGames - startingGoodGames
+            
+            # Pie chart for Good vs Evil games
+            labels = ["Good Games", "Evil Games"]
+            sizes = [totalGoodGames, totalEvilGames]
+            plt.figure(figsize=(6, 6))
+            plt.pie(sizes, labels=labels, autopct="%1.1f%%", colors=["blue", "red"])
+            plt.title("Good vs Evil Games")
+            plt.savefig("graphs/good_vs_evil_games.png")  # Save as image
+
+            # Bar chart for character types
+            character_counts = [totalTownsfolkGames, totalOutsiderGames, totalMinionGames, totalDemonGames, totalTravellerGames]
+            character_labels = ["Townsfolk", "Outsider", "Minion", "Demon", "Traveller"]
+            plt.figure(figsize=(8, 6))
+            plt.bar(character_labels, character_counts, color=["green", "purple", "gray", "black", "orange"])
+            plt.title("Character Type Distribution")
+            plt.xlabel("Character Type")
+            plt.ylabel("Number of Games")
+            plt.savefig("graphs/character_distribution.png")  # Save as image
+
+            self.send_response(200)
+            self.send_header("Content-type", "application/json")
+            self.end_headers()
+            self.wfile.write(b'{"message": "Data processed successfully"}')
 
         else:
             # Serve other files (like styles.css)
@@ -293,17 +318,7 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(open("addgame.html", "rb").read())  # Serve index.html
                 return
             
-            row_id = data.get("row_id", [None])[0] # Check if editing an existing row
-
-            print(row_id)
-
-            if row_id:
-                # Update Data if Valid
-                print("Updating Game Data")
-                updateGameData(character, character_change, starting_character, alignment, alignment_change, win, death, death_type, script_type, player_count, traveller_count, row_id)                
-            else:
-                # Insert Data if Valid
-                insertGameData(character, character_change, starting_character, alignment, alignment_change, win, death, death_type, script_type, player_count, traveller_count)
+            insertGameData(character, character_change, starting_character, alignment, alignment_change, win, death, death_type, script_type, player_count, traveller_count)
 
             # Success Response
             self.send_response(200)

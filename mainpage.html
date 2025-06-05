@@ -7,12 +7,21 @@
         function callReload() {
             fetch('/run_function.html')  // Send request to Python server
         }
+        function callData() {
+            fetch('/get_data.html')  // Send request to Python server
+        }
+    window.onload = function() {
+            sessionStorage.setItem("reloadedback", "false");
+            console.log("reloadedback reset to false");
+        };
     </script>
 </head>
 <body>
     <h2>Menu</h2>
     <button onclick="window.location.href='addgame.html'">Log a Game</button>
-    <h2>Edit Games</h2>
-    <button onclick="callReload(); window.location.href='tablegame.html';">Edit your Games</button>
+    <h2>Show Games</h2>
+    <button onclick="callReload(); window.location.href='tablegame.html';">Show your Games</button>
+    <h2>Show Data</h2>
+    <button onclick="callData(); window.location.href='showdata.html';">Show your data</button>
 </body>
 </html>

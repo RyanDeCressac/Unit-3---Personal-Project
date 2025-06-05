@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Main Page</title>
+    <script>
+        function callData() {
+            fetch('/get_info.html')
+            .then(response => response.json())
+            .then(data => console.log("Server response:", data))
+            .catch(error => console.error("Error:", error));
+        }
+        if (!sessionStorage.getItem("reloaded")) {
+            sessionStorage.setItem("reloaded", "true");
+            window.location.reload(true);
+        }
+    </script>
+</head>
+<body>
+    <button onclick="callData()">Update</button>
+    <img src="graphs/good_vs_evil_games.png" alt="Good vs Evil Games">
+    <img src="graphs/character_distribution.png" alt="Character Type Distribution">
+</body>
+</html>

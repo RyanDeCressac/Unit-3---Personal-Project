@@ -1,24 +1,12 @@
 <!DOCTYPE html>
     <html>
     <head>
-        <title>SQL Query Results</title>
+        <title>Your Games</title>
                 <style>
                     table { border-collapse: collapse; width: 50%; }
                     th, td { border: 1px solid black; padding: 8px; text-align: left; }
                 </style>
                 <script>
-                     function editRow(rowId) {
-                        fetch(`/get_game_data?id=${rowId}`)
-                            .then(response => response.json())
-                            .then(data => {
-                                // Store the game data in localStorage for retrieval in addgame.html
-                                localStorage.setItem("editGameData", JSON.stringify(data));
-                                
-                                // Redirect to addgame.html
-                                window.location.href = "addgame.html";
-                            });
-                    }
-
                     function deleteRow(rowId) {
                         fetch("/delete", {
                             method: "POST",
