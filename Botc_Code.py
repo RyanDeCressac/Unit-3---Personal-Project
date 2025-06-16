@@ -233,44 +233,231 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
             totalWins = int(df[df["win"] == "True"].shape[0])
             totalGoodWins = int(df[(df["alignment"] == "Good") & (df["win"] == "True")].shape[0])
             totalEvilWins = totalWins - totalGoodWins
-            
-            df["character_type"] = df["character"].apply(findCharacterType)
-
-            character_types = []
-            for index, row in df.iterrows():
-                character_types.append(f"{row['character_type']}")
-            
-            totalTownsfolkGames = character_types.count("Townsfolk")
-            totalOutsiderGames = character_types.count("Outsider")
-            totalMinionGames = character_types.count("Minion")
-            totalDemonGames = character_types.count("Demon")
-            totalTravellerGames = character_types.count("Traveller")
 
             startingGoodGames = int(df[(df["alignment"] == "Good") & (df["alignment_change"] == "False")].shape[0]) + int(df[(df["alignment"] == "Evil") & (df["alignment_change"] == "True")].shape[0])
             startingEvilGames = totalGames - startingGoodGames
+
+            goodTeamWins = totalGoodWins + (totalEvilGames - totalEvilWins)
+            evilTeamWins = totalGames - goodTeamWins
+            
+            df["character_type"] = df["character"].apply(findCharacterType)
+            
+            totalTownsfolkGames = int(df[df["character_type"] == "Townsfolk"].shape[0])
+            totalOutsiderGames = int(df[df["character_type"] == "Outsider"].shape[0])
+            totalMinionGames = int(df[df["character_type"] == "Minion"].shape[0])
+            totalDemonGames = int(df[df["character_type"] == "Demon"].shape[0])
+            totalTravellerGames = int(df[df["character_type"] == "Traveller"].shape[0])
+
+            totalTownsfolkWins = int(df[(df["character_type"] == "Townsfolk") & (df["win"] == "True")].shape[0])
+            totalOutsiderWins = int(df[(df["character_type"] == "Outsider") & (df["win"] == "True")].shape[0])
+            totalMinionWins = int(df[(df["character_type"] == "Minion") & (df["win"] == "True")].shape[0])
+            totalDemonWins = int(df[(df["character_type"] == "Demon") & (df["win"] == "True")].shape[0])
+            totalTravellerWins = int(df[(df["character_type"] == "Traveller") & (df["win"] == "True")].shape[0])
+
+            df["starting_character_type"] = df["starting_character"].apply(findCharacterType)
+
+            startingTownsfolkGames = int(df[df["starting_character_type"] == "Townsfolk"].shape[0])
+            startingOutsiderGames = int(df[df["starting_character_type"] == "Outsider"].shape[0])
+            startingMinionGames = int(df[df["starting_character_type"] == "Minion"].shape[0])
+            startingDemonGames = int(df[df["starting_character_type"] == "Demon"].shape[0])
+            startingTravellerGames = int(df[df["starting_character_type"] == "Traveller"].shape[0])
+
+            charactersPlayed = df["character"].value_counts()
+            startingCharactersPlayed = df["starting_character"].value_counts()
+            
+            totalTBGames = int(df[df["script_type"] == "tb"].shape[0])
+            totalBMRGames = int(df[df["script_type"] == "bmr"].shape[0])
+            totalSNVGames = int(df[df["script_type"] == "snv"].shape[0])
+            totalCustomGames = int(df[df["script_type"] == "custom"].shape[0])
+
+            TBGamesWon = int(df[(df["script_type"] == "tb") & (df["win"] == "True")].shape[0])
+            BMRGamesWon = int(df[(df["script_type"] == "bmr") & (df["win"] == "True")].shape[0])
+            SNVGamesWon = int(df[(df["script_type"] == "snv") & (df["win"] == "True")].shape[0])
+            CustomGamesWon = int(df[(df["script_type"] == "custom") & (df["win"] == "True")].shape[0])
+
+            totalDeadGames = int(df[df["death"] == "True"].shape[0])
+            totalAliveGames = totalGames - totalDeadGames
+            dayDeadGames = int(df[df["death_type"] == "Day"].shape[0])
+            nightDeadGames = int(df[df["death_type"] == "Night"].shape[0])
+
+            deadGamesWon = int(df[(df["death"] == "True") & (df["win"] == "True")].shape[0])
+            aliveGamesWon = totalWins - deadGamesWon
+
+            teamColours = ["blue", "red"]
             
             # Pie chart for Good vs Evil games
             labels = ["Good Games", "Evil Games"]
             sizes = [totalGoodGames, totalEvilGames]
             plt.figure(figsize=(6, 6))
-            plt.pie(sizes, labels=labels, autopct="%1.1f%%", colors=["blue", "red"])
+            plt.pie(sizes, labels=labels, autopct="%1.1f%%", colors=teamColours)
             plt.title("Good vs Evil Games")
+            plt.tight_layout()
             plt.savefig("graphs/good_vs_evil_games.png")  # Save as image
 
-            # Bar chart for character types
-            character_counts = [totalTownsfolkGames, totalOutsiderGames, totalMinionGames, totalDemonGames, totalTravellerGames]
+            # Pie chart for Starting Good vs Starting Evil games
+            labels = ["Starting Good Games", "Starting Evil Games"]
+            sizes = [startingGoodGames, startingEvilGames]
+            plt.figure(figsize=(6, 6))
+            plt.pie(sizes, labels=labels, autopct="%1.1f%%", colors=teamColours)
+            plt.title("Starting Good vs Starting Evil Games")
+            plt.tight_layout()
+            plt.savefig("graphs/starting_good_vs_starting_evil_games.png")  # Save as image
+
+            # Pie chart for Good Team Wins vs Evil Team Wins
+            labels = ["Good Team Wins", "Evil Team Wins"]
+            sizes = [goodTeamWins, evilTeamWins]
+            plt.figure(figsize=(6, 6))
+            plt.pie(sizes, labels=labels, autopct="%1.1f%%", colors=teamColours)
+            plt.title("Good Team Wins vs Evil Team Wins")
+            plt.tight_layout()
+            plt.savefig("graphs/good_team_wins_vs_evil_team_wins.png")  # Save as image
+
+            # Bar chart for Wins/Losses as Good vs Wins/Losses
+            data = {'Team': ['Good Team', 'Evil Team'],
+                    'Wins': [totalGoodWins, totalEvilWins],
+                    'Losses': [(totalGoodGames - totalGoodWins), (totalEvilGames - totalEvilWins)]}
+            df2 = pd.DataFrame(data)
+            fig, ax = plt.subplots()
+            df2.set_index('Team').plot(kind='bar', ax=ax)
+            ax.set_title('Wins and Losses: Playing as Good vs Playing as Evil')
+            ax.set_xlabel('Teams')
+            ax.set_ylabel('Number of Games')
+            plt.xticks(rotation=0)
+            plt.legend(title='Results')
+            plt.tight_layout()
+            plt.savefig("graphs/wins_losses_alignment.png") # Save as image
+
+            # Define a color map for character types
+            characterTypeColours = {
+                "Townsfolk": "blue",
+                "Outsider": "skyblue",
+                "Minion": "orange",
+                "Demon": "red",
+                "Traveller": "purple"
+            }
+            
             character_labels = ["Townsfolk", "Outsider", "Minion", "Demon", "Traveller"]
-            plt.figure(figsize=(8, 6))
-            plt.bar(character_labels, character_counts, color=["green", "purple", "gray", "black", "orange"])
+            pie_colours = []
+            for label in character_labels:
+                pie_colours.append(characterTypeColours[label]) 
+            
+            # Pie chart for character types played
+            character_counts = [totalTownsfolkGames, totalOutsiderGames, totalMinionGames, totalDemonGames, totalTravellerGames]
+            plt.figure(figsize=(6, 6))
+            plt.pie(character_counts, labels=character_labels, colors=pie_colours, autopct='%1.1f%%', startangle=90)
             plt.title("Character Type Distribution")
-            plt.xlabel("Character Type")
+            plt.tight_layout()
+            plt.savefig("graphs/character_type_distribution.png")  # Save as image
+
+            # Pie chart for starting character types
+            starting_character_counts = [startingTownsfolkGames, startingOutsiderGames, startingMinionGames, startingDemonGames, startingTravellerGames]
+            plt.figure(figsize=(6, 6))
+            plt.pie(starting_character_counts, labels=character_labels, colors=pie_colours, autopct='%1.1f%%', startangle=90)
+            plt.title("Starting Character Type Distribution")
+            plt.tight_layout()
+            plt.savefig("graphs/starting_character_type_distribution.png")  # Save as image
+
+            #Bar chart for character types win/losses
+            data = {'Team': character_labels,
+                    'Wins': [totalTownsfolkWins,totalOutsiderWins,totalMinionWins,totalDemonWins,totalTravellerWins],
+                    'Losses': [(totalTownsfolkGames - totalTownsfolkWins),(totalOutsiderGames - totalOutsiderWins),(totalMinionGames - totalMinionWins),(totalDemonGames - totalDemonWins),(totalTravellerGames- totalTravellerWins)]}
+            df2 = pd.DataFrame(data)
+            fig, ax = plt.subplots()
+            df2.set_index('Team').plot(kind='bar', ax=ax)
+            ax.set_title('Wins and Losses: Playing as different character types')
+            ax.set_xlabel('Character Types')
+            ax.set_ylabel('Number of Games')
+            plt.xticks(rotation=0)
+            plt.legend(title='Results')
+            plt.tight_layout()
+            plt.savefig("graphs/wins_losses_character_type.png") # Save as image
+
+            # Pie chart for changes in alignment/character
+            labels = ["No Changes", "Character Changed", "Alignment Change", "Character and Alignment Changed"]
+            sizes = [int(df[(df["alignment_change"] == "False") & (df["character_change"] == "False")].shape[0]), int(df[(df["alignment_change"] == "False") & (df["character_change"] == "True")].shape[0]),int(df[(df["alignment_change"] == "True") & (df["character_change"] == "False")].shape[0]),int(df[(df["alignment_change"] == "True") & (df["character_change"] == "True")].shape[0])]
+            plt.figure(figsize=(6, 6))
+            plt.pie(sizes, labels=labels, autopct="%1.1f%%", colors=["green","purple","yellow","gray"])
+            plt.title("Character/Alignment Change")
+            plt.tight_layout()
+            plt.savefig("graphs/character_alignment_change.png")  # Save as image
+
+            #Dynamically generates bar colours based on the character types of the characters
+            bar_colours = [characterTypeColours.get(findCharacterType(character), "gray") for character in charactersPlayed.index]
+            
+            # Bar chart for characters played
+            plt.figure(figsize=(10, 6))
+            plt.bar(charactersPlayed.index, charactersPlayed.values, color=bar_colours)
+            plt.xticks(rotation=90)  # Rotate labels for readability
+            plt.xlabel("Character")
             plt.ylabel("Number of Games")
-            plt.savefig("graphs/character_distribution.png")  # Save as image
+            plt.title("Character Frequency Distribution")
+            plt.tight_layout()
+            plt.savefig("graphs/character_frequency.png")  # Save as image
+
+            # Bar chart for starting characters
+            plt.figure(figsize=(10, 6))
+            plt.bar(startingCharactersPlayed.index, startingCharactersPlayed.values, color=bar_colours)
+            plt.xticks(rotation=90)  # Rotate labels for readability
+            plt.xlabel("Starting Character")
+            plt.ylabel("Number of Games")
+            plt.title("Starting Character Frequency Distribution")
+            plt.tight_layout()
+            plt.savefig("graphs/starting_character_frequency.png")  # Save as image
+
+            # Defines script labels and colours
+            script_labels = ["Trouble Brewing","Bad Moon Rising","Sects and Violets","Custom"]
+            script_colours = ["red","yellow","purple","gray"]
+            
+            #Pie chart for script played
+            sizes = [totalTBGames,totalBMRGames,totalSNVGames,totalCustomGames]
+            plt.figure(figsize=(6, 6))
+            plt.pie(sizes, labels=script_labels, autopct="%1.1f%%", colors=script_colours)
+            plt.title("Scripts Played")
+            plt.tight_layout()
+            plt.savefig("graphs/scripts_played.png")  # Save as image
+
+            #Bar chart for script win/losses
+            data = {'script': script_labels,
+                    'Wins': [TBGamesWon,BMRGamesWon,SNVGamesWon,CustomGamesWon],
+                    'Losses': [(totalTBGames-TBGamesWon),(totalBMRGames - BMRGamesWon),(totalSNVGames - SNVGamesWon),(totalCustomGames - CustomGamesWon)]}
+            df2 = pd.DataFrame(data)
+            fig, ax = plt.subplots()
+            df2.set_index('script').plot(kind='bar', ax=ax)
+            ax.set_title('Wins and Losses: Playing different scripts')
+            ax.set_xlabel('Script')
+            ax.set_ylabel('Number of Games')
+            plt.xticks(rotation=0)
+            plt.legend(title='Results')
+            plt.tight_layout()
+            plt.savefig("graphs/wins_losses_scripts.png") # Save as image
+
+            #Pie chart for alive/day_death/night_death
+            labels = ["Survived","Died at Day","Died at Night"]
+            sizes = [totalAliveGames,dayDeadGames,nightDeadGames]
+            plt.figure(figsize=(6, 6))
+            plt.pie(sizes, labels=labels, autopct="%1.1f%%", colors=script_colours)
+            plt.title("Games survived vs Died at Day vs Died at Night")
+            plt.tight_layout()
+            plt.savefig("graphs/death_type.png")  # Save as image
+
+            #Bar chart for dead/alive win/loss
+            data = {'death_status': ["Alive", "Dead"],
+                    'Wins': [aliveGamesWon,deadGamesWon],
+                    'Losses': [(totalAliveGames-aliveGamesWon),(totalDeadGames-deadGamesWon)]}
+            df2 = pd.DataFrame(data)
+            fig, ax = plt.subplots()
+            df2.set_index('death_status').plot(kind='bar', ax=ax)
+            ax.set_title('Wins and Losses: Alive vs Dead')
+            ax.set_xlabel('Alive or Dead')
+            ax.set_ylabel('Number of Games')
+            plt.xticks(rotation=0)
+            plt.legend(title='Results')
+            plt.tight_layout()
+            plt.savefig("graphs/wins_losses_death_status.png") # Save as image
 
             self.send_response(200)
             self.send_header("Content-type", "application/json")
             self.end_headers()
-            self.wfile.write(b'{"message": "Data processed successfully"}')
 
         else:
             # Serve other files (like styles.css)
@@ -301,9 +488,6 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
                 starting_character = "None"
             else:
                 starting_character = data.get("starting_character", [""])[0] # If you did change character, what character did you start as
-            
-            print(starting_character)
-                
             
             if death == "False":
                 death_type = "None"
