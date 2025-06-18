@@ -1,46 +1,88 @@
 <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Your Games</title>
-                <style>
-                    table { border-collapse: collapse; width: 50%; }
-                    th, td { border: 1px solid black; padding: 8px; text-align: left; }
-                </style>
-                <script>
-                    function deleteRow(rowId) {
-                        fetch("/delete", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify({ id: rowId })
-                        })
-                        .then(response => response.text())
-                        .then(data => console.log(`Deleted row ${rowId}: ${data}`));
-                    }
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Games</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .table-wrapper {
+            overflow-x: auto;
+            max-width: 100%;
+            margin-top: 1em;
+            display: flex;
+            justify-content: flex-start;
+        }
 
-                    function updateContent() {
-                        fetch("updated_content.html")
-                            .then(response => response.text())
-                            .then(data => {
-                                document.getElementById("content").innerHTML = data;
-                            });
-                    }
-                    
-                    function callReload() {
-                        fetch('/run_function.html')  // Send request to Python server
-                    }
-                </script>
-            </head>
-            <body>
-                <h2>Your Games</h2>
-                    <div id="content">
-                    <!-- Dynamically updated with games here -->
-                    </div>
-                <div style="margin-top: 20px;">
-                    <button onclick="callReload();updateContent();">Update Content</button>
-                    <button onclick="window.location.href='mainpage.html'">Return to Menu</button>
-                </div>
-            </body>
-            </html>
-            
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        th, td {
+            padding: 0.75em;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #e6f7ff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Blood on the Clocktower - Your Games</h1>
+    </header>
+
+    <main class="table">
+        <div class="table-wrapper" id="table-container">
+            <!-- Dynamically updated with games here -->
+        </div>
+
+        <div style="text-align:center; margin-top: 1.5em;">
+            <button class="submit-btn" onclick="callReload(); updateContent();">Update Content</button>
+            <button class="submit-btn" onclick="window.location.href='mainpage.html'">Return to Menu</button>
+        </div>
+    </main>
+
+    <footer>
+        &copy; 2025 Blood on the Clocktower
+    </footer>
+<script>
+        function deleteRow(rowId) {
+            fetch("/delete", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ id: rowId })
+            })
+            .then(response => response.text())
+            .then(data => console.log(`Deleted row ${rowId}: ${data}`));
+        }
+
+        function updateContent() {
+            fetch("updated_content.html")
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById("table-container").innerHTML = data;
+                });
+        }
+
+        function callReload() {
+            fetch('/run_function.html');
+        }
+        
+        function refreshWithCacheBust() {
+            const url = window.location.href.split('?')[0]; // Remove existing query params
+            const newUrl = `${url}?nocache=${new Date().getTime()}`; // Add cache-busting param
+            window.location.href = newUrl;
+        }
+    </script>
+</body>
+</html>

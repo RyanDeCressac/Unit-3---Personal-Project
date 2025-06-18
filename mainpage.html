@@ -3,25 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <title>Main Page</title>
+    <link rel="stylesheet" href="styles.css">
     <script>
         function callReload() {
-            fetch('/run_function.html')  // Send request to Python server
+            fetch('/run_function.html');
         }
+
         function callData() {
-            fetch('/get_data.html')  // Send request to Python server
+            fetch('/get_data.html');
         }
-    window.onload = function() {
+
+        window.onload = function() {
             sessionStorage.setItem("reloadedback", "false");
             console.log("reloadedback reset to false");
         };
     </script>
 </head>
 <body>
-    <h2>Menu</h2>
-    <button onclick="window.location.href='addgame.html'">Log a Game</button>
-    <h2>Show Games</h2>
-    <button onclick="callReload(); window.location.href='tablegame.html';">Show your Games</button>
-    <h2>Show Data</h2>
-    <button onclick="callData(); window.location.href='showdata.html';">Show your data</button>
+    <header>
+        <h1>Blood on the Clocktower - Menu</h1>
+    </header>
+
+    <main>
+        <section class="form-container">
+            <div class="form-group">
+                <label>Log a Game</label>
+                <button class="submit-btn" onclick="window.location.href='addgame.html'">Log a Game</button>
+            </div>
+
+            <div class="form-group">
+                <label>Show your Games</label>
+                <button class="submit-btn" onclick="callReload(); window.location.href='tablegame.html';">Show Games</button>
+            </div>
+
+            <div class="form-group">
+                <label>Show your Data</label>
+                <button class="submit-btn" onclick="callData(); window.location.href='showdata.html';">Show Data</button>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        &copy; 2025 Blood on the Clocktower
+    </footer>
 </body>
 </html>

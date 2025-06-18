@@ -3,19 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <title>Register</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h2>Register</h2>
-    <form action="/register" method="post">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required>
-        <br><br>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
-        <br><br>
-        <button type="submit">Register</button>
-    </form>
-    <br>
-    <button onclick="window.location.href='index.html'">Back to Login</button>
+    <header>
+        <h1>Blood on the Clocktower - Register</h1>
+    </header>
+
+    <main>
+        <div id="error-message" style="display:none; color:red; text-align:center; margin-bottom:1em;">
+        Registration failed. Please try again.
+        </div>
+        <form action="/register" method="post" class="form-container">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <button type="submit" class="submit-btn">Register</button>
+        </form>
+
+        <div style="text-align:center; margin-top: 1em;">
+            <button class="submit-btn" onclick="window.location.href='index.html'">Back to Login</button>
+        </div>
+    </main>
+
+    <footer>
+        &copy; 2025 Blood on the Clocktower
+    </footer>
 </body>
 </html>

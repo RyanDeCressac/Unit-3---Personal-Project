@@ -15,6 +15,10 @@ header {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
+h2 {
+    text-align: center;
+}
+
 /* Main Content Styles */
 main {
     max-width: 600px;
@@ -23,6 +27,26 @@ main {
     background-color: white;
     border-radius: 8px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+main.table {
+    max-width: 1450px;
+    margin: 2em auto;
+    padding: 1em;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Image Styles */
+.graph-group {
+  text-align: justify;
+}
+
+.graph-group img {
+  display: inline-block;
+  vertical-align: top;
+  margin-bottom: 1em;
 }
 
 /* Form Styles */
@@ -40,6 +64,8 @@ main {
 label {
     font-size: 1.2em;
     margin-bottom: 0.5em;
+    display: block;
+    text-align: center;
 }
 
 input {
@@ -57,7 +83,15 @@ input {
     padding: 0.7em 1.5em;
     font-size: 1em;
     border-radius: 4px;
+    margin-top: 0.5em;
     cursor: pointer;
+}
+
+main button {
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+    display: block;
 }
 
 .submit-btn:hover {

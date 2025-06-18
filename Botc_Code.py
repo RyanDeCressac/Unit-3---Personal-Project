@@ -6,6 +6,29 @@ import pandas as pd
 import csv
 import json
 import matplotlib.pyplot as plt    
+import os
+import shutil
+
+#Gets the script location
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Deletes content of graphs folder
+graphs_folder = os.path.join(script_dir, 'graphs')
+for filename in os.listdir(graphs_folder):
+    file_path = os.path.join(graphs_folder, filename)
+    try:
+        if os.path.isfile(file_path) or os.path.islink(file_path):
+            os.remove(file_path)
+        elif os.path.isdir(file_path):
+            shutil.rmtree(file_path)
+        print(f"Deleted: {file_path}")
+    except Exception as e:
+        print(f"Failed to delete {file_path}. Reason: {e}")
+
+#Clears updated_content file
+file_path = os.path.join(script_dir, 'updated_content.html')
+with open(file_path, 'w') as file:
+    pass 
 
 # Connects to database
 Connection = sqlite3.connect('botc_database.db')
@@ -197,32 +220,65 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(open("index.html", "rb").read())  # Serve index.html
         
         elif self.path == "/run_function.html":  # Directs to tablegame.html and sets up database
-            query = "SELECT * FROM Games WHERE username = ? ORDER BY id DESC"
-            df = pd.read_sql_query(query, Connection, params=(username,))
+            try: 
+                query = "SELECT * FROM Games WHERE username = ? ORDER BY id DESC"
+                df = pd.read_sql_query(query, Connection, params=(username,))
 
-            df['Delete'] = df.index.map(lambda i: f'<button onclick="deleteRow({df.loc[i,"id"]});">Delete</button>')
+                df['Delete'] = df.index.map(lambda i: f'<button onclick="deleteRow({df.loc[i,"id"]});callReload(); updateContent();">Delete</button>')
 
-            html_table = df.to_html(index=False, escape=False, header=True, justify='center', border=0, classes='table table-striped')
-            html_content = f"""
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <style>
-                    .table-striped th:first-child,
-                    .table-striped td:first-child {{
-                        display: none;
-                    }}
-                </style>
-            </head>
-            <body>
-                {html_table}
-            </body>
-            </html>
-            """
-            with open("updated_content.html", "w") as file:
-                file.write(html_content)
+                html_table = df.to_html(index=False, escape=False, header=True, justify='center', border=0, classes='table table-striped')
+                html_content = f"""
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Game Data</title>
+                    <link rel="stylesheet" href="styles.css">
+                    <style>
+                        .table-striped th:nth-child(1),
+                        .table-striped td:nth-child(1),
+                        .table-striped th:nth-child(2),
+                        .table-striped td:nth-child(2) {{
+                            display: none;
+                        }}
+                        
+                        table {{
+                            float: left;
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-left: 0;
+                            margin-right: auto;
+                        }}
+
+                        th, td {{
+                            padding: 0.75em;
+                            border: 1px solid #ccc;
+                            text-align: left;
+                        }}
+
+                        tr:nth-child(even) {{
+                            background-color: #f9f9f9;
+                        }}
+
+                        tr:hover {{
+                            background-color: #e6f7ff;
+                        }}
+                    </style>
+                </head>
+                <body>
+                    <main class="table">
+                        {html_table}
+                    </main>
+                </body>
+                </html>
+                """
+                with open("updated_content.html", "w") as file:
+                    file.write(html_content)
+            except Exception as e:
+                print(f"Failed to update. Reason: {e}")
+
         
-        elif self.path == "/get_info.html": # Gets facts and figures for showdata.html
+        elif self.path == ("/get_info.html"): # Gets facts and figures for showdata.html
             query = "SELECT * FROM Games WHERE username = ?" #Sanatising using paramaters WRITE IN THINGY
             df = pd.read_sql_query(query, Connection, params=(username,))
 
@@ -263,6 +319,8 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
             startingTravellerGames = int(df[df["starting_character_type"] == "Traveller"].shape[0])
 
             charactersPlayed = df["character"].value_counts()
+
+            df.loc[df["starting_character"] == "None", "starting_character"] = df["character"]
             startingCharactersPlayed = df["starting_character"].value_counts()
             
             totalTBGames = int(df[df["script_type"] == "tb"].shape[0])
@@ -282,6 +340,9 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
 
             deadGamesWon = int(df[(df["death"] == "True") & (df["win"] == "True")].shape[0])
             aliveGamesWon = totalWins - deadGamesWon
+
+            playerCountFreq = df['player_count'].value_counts().sort_index()
+            travellerCountFreq = df['traveller_count'].value_counts().sort_index()
 
             teamColours = ["blue", "red"]
             
@@ -394,6 +455,9 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
             plt.tight_layout()
             plt.savefig("graphs/character_frequency.png")  # Save as image
 
+            #Dynamically generates bar colours based on the character types of the characters
+            bar_colours = [characterTypeColours.get(findCharacterType(character), "gray") for character in startingCharactersPlayed.index]
+
             # Bar chart for starting characters
             plt.figure(figsize=(10, 6))
             plt.bar(startingCharactersPlayed.index, startingCharactersPlayed.values, color=bar_colours)
@@ -453,7 +517,9 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
             plt.xticks(rotation=0)
             plt.legend(title='Results')
             plt.tight_layout()
-            plt.savefig("graphs/wins_losses_death_status.png") # Save as image
+            plt.savefig("graphs/wins_losses_death_status.png") # Save as image        
+
+            plt.close('all')
 
             self.send_response(200)
             self.send_header("Content-type", "application/json")

@@ -2,51 +2,81 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-store">
     <title>Main Page</title>
+    <link rel="stylesheet" href="styles.css">
     <script>
         function callData() {
+            const url = window.location.href.split('?')[0];
+            window.location.href = url;
             fetch('/get_info.html')
-            .then(response => response.json())
-            .then(data => console.log("Server response:", data))
-            .catch(error => console.error("Error:", error));
+                .then(response => response.json())
+                .then(data => console.log("Server response:", data))
+                .catch(error => console.error("Error:", error));
         }
+
         function refreshWithCacheBust() {
-            callData(); // If you still want to fetch data before reloading
-            const url = window.location.href.split('?')[0]; // Strip existing query params
+            callData();
+            const url = window.location.href.split('?')[0];
             window.location.href = url + "?cacheBust=" + new Date().getTime();
         }
+
         window.onload = function () {
             if (!localStorage.getItem("reloaded")) {
-            localStorage.setItem("reloaded", "true");
-            refreshWithCacheBust
+                localStorage.setItem("reloaded", "true");
+                refreshWithCacheBust();
             }
         };
     </script>
 </head>
 <body>
-    <div style="margin-bottom: 20px;">
-        <button onclick="refreshWithCacheBust()">Update</button> 
-        <button onclick="window.location.href='mainpage.html'">Return to Main Menu</button>
-    </div>
-    <h2>Alignments</h2>
-    <img src="graphs/good_vs_evil_games.png" alt="Good vs Evil Games">
-    <img src="graphs/starting_good_vs_starting_evil_games.png" alt="Good vs Evil Games">
-    <img src="graphs/good_team_wins_vs_evil_team_wins.png" alt="Good Team Wins vs Evil Team Wins">
-    <img src="graphs/wins_losses_alignment.png" alt="Wins/Losses as Good vs Wins/Losses as Evil">
-    <img src="graphs/character_alignment_change.png" alt="Aligmment/Character Changes">
-    <h2>Character Types</h2>
-    <img src="graphs/starting_character_type_distribution.png" alt="Starting Character Type Distribution">
-    <img src="graphs/character_type_distribution.png" alt="Character Type Distribution">
-    <img src="graphs/wins_losses_character_type.png" alt="Character Type Wins/Losses">
-    <h2>Characters</h2>
-    <img src="graphs/character_frequency.png" alt="Character Played Distribution">
-    <img src="graphs/starting_character_frequency.png" alt="Starting Character Played Distribution">
-    <h2>Death</h2>
-    <img src="graphs/death_type.png" alt="Games survived vs Died at Day vs Died at Night">
-    <img src="graphs/wins_losses_death_status.png" alt="Wins/Losses while alive/dead">
-    <h2>Scripts</h2>
-    <img src="graphs/scripts_played.png" alt="Scripts Played">
-    <img src="graphs/wins_losses_scripts.png" alt="Wins/Losses on each script">
+    <header>
+        <h1>Blood on the Clocktower - Game Statistics</h1>
+    </header>
 
+    <main class="table">
+        <div style="text-align: center; margin-bottom: 1.5em;">
+            <button class="submit-btn" onclick="callData(); refreshWithCacheBust();">Update</button>
+            <button class="submit-btn" onclick="window.location.href='mainpage.html'">Return to Main Menu</button>
+        </div>
+
+        <section class="graph-group">
+            <h2>Alignments</h2>
+            <img src="graphs/good_vs_evil_games.png" alt="Good vs Evil Games" onerror="this.style.display='none'">
+            <img src="graphs/starting_good_vs_starting_evil_games.png" alt="Starting Good vs Evil Games" onerror="this.style.display='none'">
+            <img src="graphs/good_team_wins_vs_evil_team_wins.png" alt="Good Team Wins vs Evil Team Wins" onerror="this.style.display='none'">
+            <img src="graphs/wins_losses_alignment.png" alt="Wins/Losses as Good vs Wins/Losses as Evil" onerror="this.style.display='none'">
+            <img src="graphs/character_alignment_change.png" alt="Alignment/Character Changes" onerror="this.style.display='none'">
+        </section>
+
+        <section class="graph-group">
+            <h2>Character Types</h2>
+            <img src="graphs/starting_character_type_distribution.png" alt="Starting Character Type Distribution" onerror="this.style.display='none'">
+            <img src="graphs/character_type_distribution.png" alt="Character Type Distribution" onerror="this.style.display='none'">
+            <img src="graphs/wins_losses_character_type.png" alt="Character Type Wins/Losses" onerror="this.style.display='none'">
+        </section>
+
+        <section class="graph-group">
+            <h2>Characters</h2>
+            <img src="graphs/character_frequency.png" alt="Character Played Distribution" onerror="this.style.display='none'">
+            <img src="graphs/starting_character_frequency.png" alt="Starting Character Played Distribution" onerror="this.style.display='none'">
+        </section>
+
+        <section class="graph-group">
+            <h2>Death</h2>
+            <img src="graphs/death_type.png" alt="Games survived vs Died at Day vs Died at Night" onerror="this.style.display='none'">
+            <img src="graphs/wins_losses_death_status.png" alt="Wins/Losses while alive/dead" onerror="this.style.display='none'">
+        </section>
+
+        <section class="graph-group">
+            <h2>Scripts</h2>
+            <img src="graphs/scripts_played.png" alt="Scripts Played" onerror="this.style.display='none'">
+            <img src="graphs/wins_losses_scripts.png" alt="Wins/Losses on each script" onerror="this.style.display='none'">
+        </section>
+    </main>
+
+    <footer>
+        &copy; 2025 Blood on the Clocktower
+    </footer>
 </body>
 </html>
