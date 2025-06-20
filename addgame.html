@@ -185,6 +185,15 @@
                 <input type="number" id="traveller_count" name="traveller_count" min="0" max="100" required>
             </div>
 
+            <div id="error-message" style="color: red; text-align: center;">
+                <script>
+                    const params = new URLSearchParams(window.location.search);
+                    if (params.has('login_error')) {
+                        document.write("Invalid submission. Please try again.");
+                    }
+                </script>
+            </div>
+
             <button type="submit" class="submit-btn">Submit</button>
             <button type="return" onclick="window.location.href='mainpage.html'">Return to Menu</button>
         </form>

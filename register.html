@@ -24,7 +24,14 @@
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" required>
             </div>
-
+                        <div id="error-message" style="color: red; text-align: center;">
+                <script>
+                    const params = new URLSearchParams(window.location.search);
+                    if (params.has('login_error')) {
+                        document.write("Invalid username or password. Please try again.");
+                    }
+                </script>
+            </div>
             <button type="submit" class="submit-btn">Register</button>
         </form>
 
