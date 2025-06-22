@@ -31,10 +31,10 @@ def main():
     with open(file_path, 'w') as file:
         pass 
 
-    # Connects to database
+    # Connects to database  
     global Connection
-    global cursor
-    
+    global cursor  
+
     Connection = sqlite3.connect('botc_database.db')
     cursor = Connection.cursor()
     print("Successfully Connected to SQLite")
@@ -78,7 +78,7 @@ def main():
     Connection.close()
     print("SQLite connection is closed")
 
-def validate_register(username, password):
+def validate_register(username, password, cursor):
     """
     Ensures input meets sanitisation rules before allowing it to be stored.
     """
@@ -94,57 +94,44 @@ def validate_register(username, password):
         return False
     if any(char in password for char in "<> "):
         return False
-    if checkUsername(username) == True:
+    if checkUsername(username, cursor) == True:
         return False
     return True
 
-def validate_input(character, character_change, starting_character, alignment, alignment_change, win, death, death_type, script_type, player_count, traveller_count):
+def validate_input(character, character_change, starting_character, alignment, alignment_change, win, death, death_type, script_type, player_count, traveller_count, username):
     """
     Ensures input meets sanitisation rules before allowing it to be stored.
     """
     if not character or not character_change or not alignment or not alignment_change or not win or not death or not script_type or not player_count:
-        print("Missing required input")
         return False
     elif not username:
-        print("Username is not set")
         return False
     elif not isinstance(character, str) or findCharacterType(character) is None:
-        print("Invalid character value")
         return False
     elif character_change not in ["True", "False"]:
-        print("Invalid character change value")
         return False
     elif not isinstance(starting_character, str) or findCharacterType(starting_character) is None or (character_change == "True" and starting_character == character) or (character_change == "False" and starting_character != character):
-        print("Invalid starting character")
         return False
     elif alignment not in ["Good", "Evil"]:
-        print("Invalid alignment value")
         return False
     elif alignment_change not in ["True", "False"]:
-        print("Invalid alignment change value")
         return False
     elif win not in ["True", "False"]:
-        print("Invalid win value")
         return False
     elif death not in ["True", "False"]:
-        print("Invalid death value")
         return False
     elif death_type not in ["Day", "Night","None"]:
-        print("Invalid death type")
         return False
     elif script_type not in ["tb", "bmr", "snv", "custom"]:
-        print("Invalid script type")
         return False
     elif player_count < 5 or player_count > 15:
-        print("Invalid player count")
+
         return False
     elif traveller_count < 0:
-        print("Invalid traveller count")
         return False
-    print("All inputs valid")
     return True
 
-def insertLoginData(username, password):
+def insertLoginData(username, password, cursor):
     """
     Inserts valid data into the Login table.
     """
@@ -156,7 +143,7 @@ def insertLoginData(username, password):
     except sqlite3.Error as error:
         print("Error while inserting data into SQLite table:", error)
 
-def insertGameData(character, character_change, starting_character, alignment, alignment_change, win, death, death_type, script_type, player_count, traveller_count):
+def insertGameData(character, character_change, starting_character, alignment, alignment_change, win, death, death_type, script_type, player_count, traveller_count, cursor):
     """
     Inserts valid data into the Games table.
     """
@@ -168,19 +155,7 @@ def insertGameData(character, character_change, starting_character, alignment, a
     except sqlite3.Error as error:
         print("Error while inserting data into SQLite table:", error)
 
-def updateGameData(character, character_change, starting_character, alignment, alignment_change, win, death, death_type, script_type, player_count, traveller_count, row_id):
-    '''
-    Update valid data into the Games table
-    '''
-    try:
-        update_query = """UPDATE Games SET character=?, character_change=?, starting_character=?, alignment=?, alignment_change=?, win=?, death=?, death_type=?, script_type=?, player_count=?, traveller_count=? WHERE id=?"""
-        cursor.execute(update_query, (character, character_change, starting_character, alignment, alignment_change, win, death, death_type, script_type, player_count, traveller_count, row_id))
-        Connection.commit()
-        print("Information successfully updated")
-    except sqlite3.Error as error:
-        print("Error while updating data into SQLite table:", error)
-
-def checkLogin(username, password):
+def checkLogin(username, password, cursor):
     '''
     Checks if username and password are in the database
     '''
@@ -191,7 +166,7 @@ def checkLogin(username, password):
             return True
     return False
 
-def checkUsername(username):
+def checkUsername(username, cursor):
     '''
     Checks if username is in the database
     '''
@@ -213,40 +188,51 @@ def findCharacterType(character):
                 return row[0]
     return None
 
-def deleteRow(table, id):
+def deleteRow(table, id, cursor):
     '''
     Deletes a row from a given SQL table
     '''
-    try: 
+    try:
         query = f"DELETE FROM {table} WHERE id = ?"
         cursor.execute(query, (id,))
         Connection.commit()
         print(f"Row {id} deleted")
+        return True #Returns for unit testing purposes
     except:
         print(f"Failed to delete row {id}")
+        return False #Returns for unit testing purposes
 
-def fetchData(df):
+### INSERTING THE *WALL OF STAT CALCULATION* ###
+
+def get_total_games(df):
     totalGames = int(df.shape[0])
     totalGoodGames = int(df[df["alignment"] == "Good"].shape[0])
     totalEvilGames = totalGames - totalGoodGames
+    return totalGames, totalGoodGames, totalEvilGames
 
+def get_win_stats(df, totalGames,totalEvilGames):
     totalWins = int(df[df["win"] == "True"].shape[0])
     totalGoodWins = int(df[(df["alignment"] == "Good") & (df["win"] == "True")].shape[0])
     totalEvilWins = totalWins - totalGoodWins
-
-    startingGoodGames = int(df[(df["alignment"] == "Good") & (df["alignment_change"] == "False")].shape[0]) + int(df[(df["alignment"] == "Evil") & (df["alignment_change"] == "True")].shape[0])
-    startingEvilGames = totalGames - startingGoodGames
-
     goodTeamWins = totalGoodWins + (totalEvilGames - totalEvilWins)
     evilTeamWins = totalGames - goodTeamWins
+    return totalWins, totalGoodWins, totalEvilWins, goodTeamWins, evilTeamWins
 
+def get_starting_alignment_stats(df, totalGames):
+    startingGoodGames = int(df[(df["alignment"] == "Good") & (df["alignment_change"] == "False")].shape[0]) + \
+                        int(df[(df["alignment"] == "Evil") & (df["alignment_change"] == "True")].shape[0])
+    startingEvilGames = totalGames - startingGoodGames
+    return startingGoodGames, startingEvilGames
+
+def get_change_stats(df):
     noChangeGames = int(df[(df["alignment_change"] == "False") & (df["character_change"] == "False")].shape[0])
     characterChangeGames = int(df[(df["alignment_change"] == "False") & (df["character_change"] == "True")].shape[0])
     alignmentChangeGames = int(df[(df["alignment_change"] == "True") & (df["character_change"] == "False")].shape[0])
     allChangeGames = int(df[(df["alignment_change"] == "True") & (df["character_change"] == "True")].shape[0])
-            
+    return noChangeGames, characterChangeGames, alignmentChangeGames, allChangeGames
+
+def get_character_stats(df):
     df["character_type"] = df["character"].apply(findCharacterType)
-            
     totalTownsfolkGames = int(df[df["character_type"] == "Townsfolk"].shape[0])
     totalOutsiderGames = int(df[df["character_type"] == "Outsider"].shape[0])
     totalMinionGames = int(df[df["character_type"] == "Minion"].shape[0])
@@ -259,17 +245,25 @@ def fetchData(df):
     totalDemonWins = int(df[(df["character_type"] == "Demon") & (df["win"] == "True")].shape[0])
     totalTravellerWins = int(df[(df["character_type"] == "Traveller") & (df["win"] == "True")].shape[0])
 
+    return (
+        totalTownsfolkGames, totalOutsiderGames, totalMinionGames, 
+        totalDemonGames, totalTravellerGames, totalTownsfolkWins, 
+        totalOutsiderWins, totalMinionWins, totalDemonWins, totalTravellerWins
+    )
+
+def get_starting_character_stats(df):
     df["starting_character_type"] = df["starting_character"].apply(findCharacterType)
-    
     startingTownsfolkGames = int(df[df["starting_character_type"] == "Townsfolk"].shape[0])
     startingOutsiderGames = int(df[df["starting_character_type"] == "Outsider"].shape[0])
     startingMinionGames = int(df[df["starting_character_type"] == "Minion"].shape[0])
     startingDemonGames = int(df[df["starting_character_type"] == "Demon"].shape[0])
     startingTravellerGames = int(df[df["starting_character_type"] == "Traveller"].shape[0])
+    return (
+        startingTownsfolkGames, startingOutsiderGames, 
+        startingMinionGames, startingDemonGames, startingTravellerGames
+    )
 
-    charactersPlayed = df["character"].value_counts()
-    startingCharactersPlayed = df["starting_character"].value_counts()
-            
+def get_script_stats(df):
     totalTBGames = int(df[df["script_type"] == "tb"].shape[0])
     totalBMRGames = int(df[df["script_type"] == "bmr"].shape[0])
     totalSNVGames = int(df[df["script_type"] == "snv"].shape[0])
@@ -280,13 +274,50 @@ def fetchData(df):
     SNVGamesWon = int(df[(df["script_type"] == "snv") & (df["win"] == "True")].shape[0])
     CustomGamesWon = int(df[(df["script_type"] == "custom") & (df["win"] == "True")].shape[0])
 
+    return totalTBGames, totalBMRGames, totalSNVGames, totalCustomGames, TBGamesWon, BMRGamesWon, SNVGamesWon, CustomGamesWon
+
+def get_death_stats(df, totalGames, totalWins):
     totalDeadGames = int(df[df["death"] == "True"].shape[0])
     totalAliveGames = totalGames - totalDeadGames
     dayDeadGames = int(df[df["death_type"] == "Day"].shape[0])
     nightDeadGames = int(df[df["death_type"] == "Night"].shape[0])
-
     deadGamesWon = int(df[(df["death"] == "True") & (df["win"] == "True")].shape[0])
     aliveGamesWon = totalWins - deadGamesWon
+    return totalDeadGames, totalAliveGames, dayDeadGames, nightDeadGames, deadGamesWon, aliveGamesWon
+
+def get_character_counts(df):
+    charactersPlayed = df["character"].value_counts()
+    startingCharactersPlayed = df["starting_character"].value_counts()
+    return charactersPlayed, startingCharactersPlayed
+
+def fetchData(df):
+    totalGames, totalGoodGames, totalEvilGames = get_total_games(df)
+    totalWins, totalGoodWins, totalEvilWins, goodTeamWins, evilTeamWins = get_win_stats(df, totalGames, totalEvilGames)
+    startingGoodGames, startingEvilGames = get_starting_alignment_stats(df, totalGames)
+    noChangeGames, characterChangeGames, alignmentChangeGames, allChangeGames = get_change_stats(df)
+
+    (
+        totalTownsfolkGames, totalOutsiderGames, totalMinionGames, 
+        totalDemonGames, totalTravellerGames, totalTownsfolkWins, 
+        totalOutsiderWins, totalMinionWins, totalDemonWins, totalTravellerWins
+    ) = get_character_stats(df)
+
+    (
+        startingTownsfolkGames, startingOutsiderGames, 
+        startingMinionGames, startingDemonGames, startingTravellerGames
+    ) = get_starting_character_stats(df)
+
+    (
+        totalTBGames, totalBMRGames, totalSNVGames, totalCustomGames, 
+        TBGamesWon, BMRGamesWon, SNVGamesWon, CustomGamesWon
+    ) = get_script_stats(df)
+
+    (
+        totalDeadGames, totalAliveGames, dayDeadGames, 
+        nightDeadGames, deadGamesWon, aliveGamesWon
+    ) = get_death_stats(df, totalGames, totalWins)
+
+    charactersPlayed, startingCharactersPlayed = get_character_counts(df)
 
     return totalGoodGames, totalEvilGames, totalGoodWins, totalEvilWins, \
         startingGoodGames, startingEvilGames, goodTeamWins, evilTeamWins, noChangeGames, \
@@ -299,6 +330,8 @@ def fetchData(df):
         totalSNVGames, totalCustomGames, TBGamesWon, BMRGamesWon, SNVGamesWon, \
         CustomGamesWon, totalDeadGames, totalAliveGames, dayDeadGames, nightDeadGames, \
         deadGamesWon, aliveGamesWon
+
+### END OF THE *WALL OF STAT CALCULATION* ###
 
 class CustomHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
@@ -313,7 +346,7 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
                 query = "SELECT * FROM Games WHERE username = ? ORDER BY id DESC"
                 df = pd.read_sql_query(query, Connection, params=(username,))
 
-                df['Delete'] = df.index.map(lambda i: f'<button onclick="deleteRow({df.loc[i,"id"]});callReload(); updateContent();">Delete</button>')
+                df['Delete'] = df.index.map(lambda i: f'<button onclick="deleteRow({df.loc[i,"id"],cursor});callReload(); updateContent();">Delete</button>')
 
                 html_table = df.to_html(index=False, escape=False, header=True, justify='center', border=0, classes='table table-striped')
                 html_content = f"""
@@ -572,6 +605,7 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
         '''
         Handles POST requests and processes form submissions.
         '''
+        global username
         if self.path == "/submit":
             '''
             Logging a game
@@ -601,13 +635,13 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
                 death_type = data.get("death_type", [""])[0] # If you did die, when did you die
             
             # Validate Input
-            if not validate_input(character, character_change, starting_character, alignment, alignment_change, win, death, death_type, script_type, player_count, traveller_count):
+            if not validate_input(character, character_change, starting_character, alignment, alignment_change, win, death, death_type, script_type, player_count, traveller_count, username):
                 self.send_response(302)
                 self.send_header("Location", "/addgame.html?login_error=true")
                 self.end_headers()
                 return
             
-            insertGameData(character, character_change, starting_character, alignment, alignment_change, win, death, death_type, script_type, player_count, traveller_count)
+            insertGameData(character, character_change, starting_character, alignment, alignment_change, win, death, death_type, script_type, player_count, traveller_count, cursor)
 
             # Success Response
             self.send_response(200)
@@ -620,7 +654,6 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
             '''
             Registering an account
             '''
-            global username
 
             content_length = int(self.headers.get("Content-Length", 0))
             post_data = self.rfile.read(content_length).decode("utf-8")
@@ -630,7 +663,7 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
             password = data.get("password", [""])[0]
 
             # Validate Input
-            if not validate_register(username,password):
+            if not validate_register(username,password,cursor):
                 # Unsuccess Response
                 self.send_response(302)
                 self.send_header("Location", "/register.html?login_error=true")
@@ -641,7 +674,7 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
                 #You would hash here, but since this is an offline website, hashing is unneccesary
 
                 # Success Response
-                insertLoginData(username, password)
+                insertLoginData(username, password, cursor)
                 self.send_response(200)
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
@@ -658,7 +691,7 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
             username = data.get("username", [""])[0]
             password = data.get("password", [""])[0]
 
-            if checkLogin(username, password) == True:
+            if checkLogin(username, password, cursor) == True:
                 self.send_response(200)
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
