@@ -114,12 +114,12 @@
                 <label for="character_change">Did your character change?</label>
                 <select id="character_change" name="character_change" onchange="toggleField('character_change', 'starting_character', 'False')">
                     <option value="True">Yes</option>
-                    <option value="False">No</option>
+                    <option value="False" selected>No</option>
                 </select>
             </div>
             <div class="form-group">
                 <label for="starting_character">Starting Character:</label>
-                <select id="starting_character" name="starting_character" class="character-dropdown">
+                <select id="starting_character" name="starting_character" class="character-dropdown" disabled>
                     <option value="">Select a starting character...</option>
                 </select>
             </div>
@@ -137,7 +137,7 @@
                 <label for="alignment_change">Did you start as a different alignment?</label>
                 <select id="alignment_change" name="alignment_change" required>
                     <option value="True">Yes</option>
-                    <option value="False">No</option>
+                    <option value="False" selected>No</option>
                 </select>
             </div>
 
@@ -153,13 +153,14 @@
                 <label for="death">Did you die?</label>
                 <select id="death" name="death" onchange="toggleField('death', 'death_type', 'False')" required>
                     <option value=True>Yes</option>
-                    <option value=False>No</option>
+                    <option value=False selected>No</option>
                 </select>
             </div>
 
             <div class="form-group">
                 <label for="death_type">When did you die?</label>
-                <select id="death_type" name="death_type">
+                <select id="death_type" name="death_type" disabled>
+                    <option value="">Select a time of death...</option>
                     <option value="Day">Day</option>
                     <option value="Night">Night</option>
                 </select>

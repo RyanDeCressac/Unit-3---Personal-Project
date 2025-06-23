@@ -188,7 +188,7 @@ def findCharacterType(character):
                 return row[0]
     return None
 
-def deleteRow(table, id, cursor):
+def deleteRow(table, id):
     '''
     Deletes a row from a given SQL table
     '''
@@ -346,7 +346,7 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
                 query = "SELECT * FROM Games WHERE username = ? ORDER BY id DESC"
                 df = pd.read_sql_query(query, Connection, params=(username,))
 
-                df['Delete'] = df.index.map(lambda i: f'<button onclick="deleteRow({df.loc[i,"id"],cursor});callReload(); updateContent();">Delete</button>')
+                df['Delete'] = df.index.map(lambda i: f'<button onclick="deleteRow({df.loc[i,"id"]});callReload();updateContent();">Delete</button>')
 
                 html_table = df.to_html(index=False, escape=False, header=True, justify='center', border=0, classes='table table-striped')
                 html_content = f"""
