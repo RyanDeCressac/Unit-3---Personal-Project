@@ -491,7 +491,7 @@ class TestFetchDataIntegration(unittest.TestCase):
         charactersPlayed, startingCharactersPlayed, totalTBGames, totalBMRGames, \
         totalSNVGames, totalCustomGames, TBGamesWon, BMRGamesWon, SNVGamesWon, \
         CustomGamesWon, totalDeadGames, totalAliveGames, dayDeadGames, nightDeadGames, \
-        deadGamesWon, aliveGamesWon = fetchData(df)
+        deadGamesWon, aliveGamesWon, totalGames, totalWins = fetchData(df)
 
         self.assertEqual(totalGoodGames, 2)
         self.assertEqual(totalEvilGames, 2)
@@ -541,6 +541,8 @@ class TestFetchDataIntegration(unittest.TestCase):
         self.assertEqual(nightDeadGames, 1)
         self.assertEqual(deadGamesWon, 2)
         self.assertEqual(aliveGamesWon, 1)
+        self.assertEqual(totalGames, 4)
+        self.assertEqual(totalWins, 3)
 
         # Value count checks
         self.assertEqual(charactersPlayed['Washerwoman'], 1)

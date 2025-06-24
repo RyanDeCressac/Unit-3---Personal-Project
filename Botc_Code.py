@@ -8,6 +8,7 @@ import json
 import matplotlib.pyplot as plt    
 import os
 import shutil
+import hashlib
 
 def main():
     #Gets the script's location
@@ -88,7 +89,7 @@ def validate_register(username, password, cursor):
         return False
     if any(char in username for char in "<>/\\:*?\"|!@#$%^&() "):
         return False
-    if not username.isalpha():
+    if not username.isalnum():
         return False
     if not isinstance(password, str) or len(password) < 7:
         return False
@@ -102,7 +103,7 @@ def validate_input(character, character_change, starting_character, alignment, a
     """
     Ensures input meets sanitisation rules before allowing it to be stored.
     """
-    if not character or not character_change or not alignment or not alignment_change or not win or not death or not script_type or not player_count:
+    if not character or not character_change or not starting_character or not alignment or not alignment_change or not win or not death or not death_type or not script_type or not player_count:
         return False
     elif not username:
         return False
@@ -125,7 +126,6 @@ def validate_input(character, character_change, starting_character, alignment, a
     elif script_type not in ["tb", "bmr", "snv", "custom"]:
         return False
     elif player_count < 5 or player_count > 15:
-
         return False
     elif traveller_count < 0:
         return False
@@ -159,10 +159,12 @@ def checkLogin(username, password, cursor):
     '''
     Checks if username and password are in the database
     '''
+    hashed_password = hashlib.sha256(password.encode()).hexdigest() 
+
     cursor.execute('SELECT username, password FROM Login')
     rows = cursor.fetchall()
     for row in rows:
-        if row[0] == username and row[1] == password:
+        if row[0] == username and row[1] == hashed_password:
             return True
     return False
 
@@ -329,7 +331,7 @@ def fetchData(df):
         charactersPlayed, startingCharactersPlayed, totalTBGames, totalBMRGames, \
         totalSNVGames, totalCustomGames, TBGamesWon, BMRGamesWon, SNVGamesWon, \
         CustomGamesWon, totalDeadGames, totalAliveGames, dayDeadGames, nightDeadGames, \
-        deadGamesWon, aliveGamesWon
+        deadGamesWon, aliveGamesWon, totalGames, totalWins
 
 ### END OF THE *WALL OF STAT CALCULATION* ###
 
@@ -414,7 +416,7 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
             charactersPlayed, startingCharactersPlayed, totalTBGames, totalBMRGames, \
             totalSNVGames, totalCustomGames, TBGamesWon, BMRGamesWon, SNVGamesWon, \
             CustomGamesWon, totalDeadGames, totalAliveGames, dayDeadGames, nightDeadGames, \
-            deadGamesWon, aliveGamesWon = fetchData(df)
+            deadGamesWon, aliveGamesWon, totalGames, totalWins = fetchData(df)
 
             teamColours = ["blue", "red"]
             
@@ -444,6 +446,15 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
             plt.title("Good Team Wins vs Evil Team Wins")
             plt.tight_layout()
             plt.savefig("graphs/good_team_wins_vs_evil_team_wins.png")  # Save as image
+
+            # Pie chart for Wins vs Losses
+            labels = ["Wins", "Losses"]
+            sizes = [totalWins, (totalGames - totalWins)]
+            plt.figure(figsize=(6, 6))
+            plt.pie(sizes, labels=labels, autopct="%1.1f%%", colors=teamColours)
+            plt.title("Wins vs Losses")
+            plt.tight_layout()
+            plt.savefig("graphs/wins_vs_losses.png")  # Save as image
 
             # Bar chart for Wins/Losses as Good vs Wins/Losses
             data = {'Team': ['Good Team', 'Evil Team'],
@@ -671,10 +682,11 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
                 return
             
             else:
-                #You would hash here, but since this is an offline website, hashing is unneccesary
+                # Hashes password
+                hashed_password = hashlib.sha256(password.encode()).hexdigest()
 
                 # Success Response
-                insertLoginData(username, password, cursor)
+                insertLoginData(username, hashed_password, cursor)
                 self.send_response(200)
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
