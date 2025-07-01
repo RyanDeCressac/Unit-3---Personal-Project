@@ -3,6 +3,7 @@ from unittest.mock import patch
 from unittest.mock import MagicMock
 from unittest.mock import Mock
 import pandas as pd
+import hashlib
 from Botc_Code import validate_register
 from Botc_Code import validate_input
 from Botc_Code import findCharacterType
@@ -49,9 +50,9 @@ class TestValidateRegister(unittest.TestCase):
         with patch('Botc_Code.checkUsername', return_value=False):
             self.assertFalse(validate_register("Invalid!Name", "password123",cursor))
 
-    def test_username_not_alpha(self):
+    def test_username_not_alphanumeric(self):
         with patch('Botc_Code.checkUsername', return_value=False):
-            self.assertFalse(validate_register("User123", "password123",cursor))
+            self.assertFalse(validate_register("User123!", "password123",cursor))
 
     def test_password_too_short(self):
         with patch('Botc_Code.checkUsername', return_value=False):
@@ -165,17 +166,17 @@ class TestFindCharacterType(unittest.TestCase):
 class TestCheckLogin(unittest.TestCase):
     def test_valid_credentials(self):
         # Mock data as if it were returned from the database
-        cursor.fetchall.return_value = [("alice", "secret"), ("bob", "password")]
+        cursor.fetchall.return_value = [("alice", hashlib.sha256("secret".encode()).hexdigest()), ("bob", hashlib.sha256("password".encode()).hexdigest())]
         result = checkLogin("alice", "secret",cursor)
         self.assertTrue(result)
 
     def test_invalid_username(self):
-        cursor.fetchall.return_value = [("alice", "secret"), ("bob", "password")]
+        cursor.fetchall.return_value = [("alice", hashlib.sha256("secret".encode()).hexdigest()), ("bob", hashlib.sha256("password".encode()).hexdigest())]
         result = checkLogin("charlie", "secret",cursor)
         self.assertFalse(result)
 
     def test_invalid_password(self):
-        cursor.fetchall.return_value = [("alice", "secret")]
+        cursor.fetchall.return_value = ("alice", hashlib.sha256("secret".encode()).hexdigest())
         result = checkLogin("alice", "wrongpass",cursor)
         self.assertFalse(result)
 
