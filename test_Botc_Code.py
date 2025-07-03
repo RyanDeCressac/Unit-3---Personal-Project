@@ -124,7 +124,7 @@ class TestValidateInput(unittest.TestCase):
         result = validate_input("Sage", "True", "Monk", "Good", "False", "True", "False", "Morning", "tb", 10, 1, "TestUsername")
         self.assertFalse(result)
 
-    def test_invalid_script_inpit(self):
+    def test_invalid_script_input(self):
         result = validate_input("Sage", "True", "Monk", "Good", "False", "True", "False", "None", "Invalid", 10, 1, "TestUsername")
         self.assertFalse(result)
 
@@ -253,8 +253,6 @@ class TestGetWinStats(unittest.TestCase):
         totalGames = 4
         totalEvilGames = 2
         result = get_win_stats(df, totalGames, totalEvilGames)
-        # totalWins = 2 (1 Good, 1 Evil), totalEvilWins = 1
-        # goodTeamWins = 1 + (2 - 1) = 2, evilTeamWins = 4 - 2 = 2
         self.assertEqual(result, (2, 1, 1, 2, 2))
 
     def test_empty_df(self):
@@ -291,7 +289,6 @@ class TestGetStartingAlignment(unittest.TestCase):
         })
         totalGames = 4
         result = get_starting_alignment_stats(df, totalGames)
-        # Only df[0] (Good & False) and df[2] (Evil & True) qualify
         self.assertEqual(result, (2, 2))
 
     def test_empty_df(self):
