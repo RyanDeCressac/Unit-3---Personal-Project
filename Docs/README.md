@@ -7,15 +7,15 @@ The Blood on the Clocktower (BoTC) game tracker is a project designed to allow p
 1. Open the BoTC game tracker in a code editor of your choice (for example, Visual Studio Code)
 2. Open the terminal (hotkeys for this on windows ctrl + `)
 3. Enter the following command
-'pip install -r requirements.txt'
+> 'pip install -r requirements.txt'
 
 ### How to run BoTC Game Tracker
 1. Open the BoTC game tracker in a code editor of your choice (for example, Visual Studio Code)
 2. Run the python file
-'Botc_Code.py'
+> 'Botc_Code.py'
 3. Open your browser of choice
 4. In the URL search bar, enter
-'localhost:8000'
+> 'localhost:8000'
 5. Once finished, close the web tab and stop running the python file
 
 ## Features
