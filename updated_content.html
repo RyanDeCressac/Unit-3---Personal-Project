@@ -1,0 +1,418 @@
+
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Game Data</title>
+                    <link rel="stylesheet" href="styles.css">
+                    <style>
+                        .table-striped th:nth-child(1),
+                        .table-striped td:nth-child(1),
+                        .table-striped th:nth-child(2),
+                        .table-striped td:nth-child(2) {
+                            display: none;
+                        }
+                        
+                        table {
+                            float: left;
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-left: 0;
+                            margin-right: auto;
+                        }
+
+                        th, td {
+                            padding: 0.75em;
+                            border: 1px solid #ccc;
+                            text-align: left;
+                        }
+
+                        tr:nth-child(even) {
+                            background-color: #f9f9f9;
+                        }
+
+                        tr:hover {
+                            background-color: #e6f7ff;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <main class="table">
+                        <table class="dataframe table table-striped">
+  <thead>
+    <tr style="text-align: center;">
+      <th>id</th>
+      <th>username</th>
+      <th>character</th>
+      <th>character_change</th>
+      <th>starting_character</th>
+      <th>alignment</th>
+      <th>alignment_change</th>
+      <th>win</th>
+      <th>death</th>
+      <th>death_type</th>
+      <th>script_type</th>
+      <th>player_count</th>
+      <th>traveller_count</th>
+      <th>Delete</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>27</td>
+      <td>username</td>
+      <td>Legion</td>
+      <td>False</td>
+      <td>Legion</td>
+      <td>Evil</td>
+      <td>False</td>
+      <td>True</td>
+      <td>True</td>
+      <td>Night</td>
+      <td>custom</td>
+      <td>6</td>
+      <td>0</td>
+      <td><button onclick="deleteRow(27);callReload();updateContent();">Delete</button></td>
+    </tr>
+    <tr>
+      <td>26</td>
+      <td>username</td>
+      <td>Fang Gu</td>
+      <td>True</td>
+      <td>Pit-Hag</td>
+      <td>Evil</td>
+      <td>False</td>
+      <td>False</td>
+      <td>True</td>
+      <td>Night</td>
+      <td>snv</td>
+      <td>9</td>
+      <td>1</td>
+      <td><button onclick="deleteRow(26);callReload();updateContent();">Delete</button></td>
+    </tr>
+    <tr>
+      <td>25</td>
+      <td>username</td>
+      <td>Klutz</td>
+      <td>True</td>
+      <td>Oracle</td>
+      <td>Good</td>
+      <td>False</td>
+      <td>True</td>
+      <td>True</td>
+      <td>Night</td>
+      <td>snv</td>
+      <td>15</td>
+      <td>2</td>
+      <td><button onclick="deleteRow(25);callReload();updateContent();">Delete</button></td>
+    </tr>
+    <tr>
+      <td>24</td>
+      <td>username</td>
+      <td>Flowergirl</td>
+      <td>False</td>
+      <td>Flowergirl</td>
+      <td>Good</td>
+      <td>False</td>
+      <td>False</td>
+      <td>True</td>
+      <td>Day</td>
+      <td>snv</td>
+      <td>9</td>
+      <td>0</td>
+      <td><button onclick="deleteRow(24);callReload();updateContent();">Delete</button></td>
+    </tr>
+    <tr>
+      <td>23</td>
+      <td>username</td>
+      <td>Drunk</td>
+      <td>False</td>
+      <td>Drunk</td>
+      <td>Good</td>
+      <td>False</td>
+      <td>True</td>
+      <td>True</td>
+      <td>Day</td>
+      <td>tb</td>
+      <td>15</td>
+      <td>0</td>
+      <td><button onclick="deleteRow(23);callReload();updateContent();">Delete</button></td>
+    </tr>
+    <tr>
+      <td>22</td>
+      <td>username</td>
+      <td>Savant</td>
+      <td>False</td>
+      <td>Savant</td>
+      <td>Good</td>
+      <td>False</td>
+      <td>False</td>
+      <td>True</td>
+      <td>Day</td>
+      <td>snv</td>
+      <td>12</td>
+      <td>0</td>
+      <td><button onclick="deleteRow(22);callReload();updateContent();">Delete</button></td>
+    </tr>
+    <tr>
+      <td>21</td>
+      <td>username</td>
+      <td>Philosopher</td>
+      <td>True</td>
+      <td>NoDashii</td>
+      <td>Evil</td>
+      <td>True</td>
+      <td>False</td>
+      <td>True</td>
+      <td>Day</td>
+      <td>snv</td>
+      <td>15</td>
+      <td>0</td>
+      <td><button onclick="deleteRow(21);callReload();updateContent();">Delete</button></td>
+    </tr>
+    <tr>
+      <td>20</td>
+      <td>username</td>
+      <td>Fang Gu</td>
+      <td>False</td>
+      <td>Fang Gu</td>
+      <td>Evil</td>
+      <td>False</td>
+      <td>True</td>
+      <td>True</td>
+      <td>Night</td>
+      <td>snv</td>
+      <td>12</td>
+      <td>0</td>
+      <td><button onclick="deleteRow(20);callReload();updateContent();">Delete</button></td>
+    </tr>
+    <tr>
+      <td>19</td>
+      <td>username</td>
+      <td>Philosopher</td>
+      <td>False</td>
+      <td>Philosopher</td>
+      <td>Good</td>
+      <td>False</td>
+      <td>False</td>
+      <td>True</td>
+      <td>Night</td>
+      <td>snv</td>
+      <td>13</td>
+      <td>0</td>
+      <td><button onclick="deleteRow(19);callReload();updateContent();">Delete</button></td>
+    </tr>
+    <tr>
+      <td>18</td>
+      <td>username</td>
+      <td>Vortox</td>
+      <td>False</td>
+      <td>Vortox</td>
+      <td>Evil</td>
+      <td>False</td>
+      <td>False</td>
+      <td>True</td>
+      <td>Day</td>
+      <td>snv</td>
+      <td>13</td>
+      <td>0</td>
+      <td><button onclick="deleteRow(18);callReload();updateContent();">Delete</button></td>
+    </tr>
+    <tr>
+      <td>17</td>
+      <td>username</td>
+      <td>Seamstress</td>
+      <td>False</td>
+      <td>Seamstress</td>
+      <td>Good</td>
+      <td>False</td>
+      <td>True</td>
+      <td>True</td>
+      <td>Day</td>
+      <td>snv</td>
+      <td>14</td>
+      <td>0</td>
+      <td><button onclick="deleteRow(17);callReload();updateContent();">Delete</button></td>
+    </tr>
+    <tr>
+      <td>16</td>
+      <td>username</td>
+      <td>Harlot</td>
+      <td>False</td>
+      <td>Harlot</td>
+      <td>Good</td>
+      <td>False</td>
+      <td>True</td>
+      <td>False</td>
+      <td>None</td>
+      <td>snv</td>
+      <td>15</td>
+      <td>1</td>
+      <td><button onclick="deleteRow(16);callReload();updateContent();">Delete</button></td>
+    </tr>
+    <tr>
+      <td>14</td>
+      <td>username</td>
+      <td>Saint</td>
+      <td>False</td>
+      <td>Saint</td>
+      <td>Good</td>
+      <td>False</td>
+      <td>True</td>
+      <td>False</td>
+      <td>None</td>
+      <td>tb</td>
+      <td>11</td>
+      <td>0</td>
+      <td><button onclick="deleteRow(14);callReload();updateContent();">Delete</button></td>
+    </tr>
+    <tr>
+      <td>13</td>
+      <td>username</td>
+      <td>Scarlet Woman</td>
+      <td>False</td>
+      <td>Scarlet Woman</td>
+      <td>Evil</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>tb</td>
+      <td>7</td>
+      <td>0</td>
+      <td><button onclick="deleteRow(13);callReload();updateContent();">Delete</button></td>
+    </tr>
+    <tr>
+      <td>12</td>
+      <td>username</td>
+      <td>Oracle</td>
+      <td>False</td>
+      <td>Oracle</td>
+      <td>Good</td>
+      <td>False</td>
+      <td>True</td>
+      <td>True</td>
+      <td>Day</td>
+      <td>snv</td>
+      <td>8</td>
+      <td>0</td>
+      <td><button onclick="deleteRow(12);callReload();updateContent();">Delete</button></td>
+    </tr>
+    <tr>
+      <td>11</td>
+      <td>username</td>
+      <td>Juggler</td>
+      <td>False</td>
+      <td>Juggler</td>
+      <td>Good</td>
+      <td>False</td>
+      <td>False</td>
+      <td>True</td>
+      <td>Night</td>
+      <td>snv</td>
+      <td>8</td>
+      <td>0</td>
+      <td><button onclick="deleteRow(11);callReload();updateContent();">Delete</button></td>
+    </tr>
+    <tr>
+      <td>10</td>
+      <td>username</td>
+      <td>Goblin</td>
+      <td>False</td>
+      <td>Goblin</td>
+      <td>Evil</td>
+      <td>False</td>
+      <td>True</td>
+      <td>True</td>
+      <td>Day</td>
+      <td>custom</td>
+      <td>15</td>
+      <td>1</td>
+      <td><button onclick="deleteRow(10);callReload();updateContent();">Delete</button></td>
+    </tr>
+    <tr>
+      <td>9</td>
+      <td>username</td>
+      <td>Philosopher</td>
+      <td>False</td>
+      <td>Philosopher</td>
+      <td>Good</td>
+      <td>False</td>
+      <td>True</td>
+      <td>True</td>
+      <td>Night</td>
+      <td>custom</td>
+      <td>11</td>
+      <td>0</td>
+      <td><button onclick="deleteRow(9);callReload();updateContent();">Delete</button></td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td>username</td>
+      <td>Kazali</td>
+      <td>False</td>
+      <td>Kazali</td>
+      <td>Evil</td>
+      <td>False</td>
+      <td>False</td>
+      <td>True</td>
+      <td>Day</td>
+      <td>custom</td>
+      <td>9</td>
+      <td>0</td>
+      <td><button onclick="deleteRow(8);callReload();updateContent();">Delete</button></td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td>username</td>
+      <td>Alchemist</td>
+      <td>False</td>
+      <td>Alchemist</td>
+      <td>Good</td>
+      <td>False</td>
+      <td>False</td>
+      <td>True</td>
+      <td>Day</td>
+      <td>custom</td>
+      <td>13</td>
+      <td>0</td>
+      <td><button onclick="deleteRow(7);callReload();updateContent();">Delete</button></td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>username</td>
+      <td>Chambermaid</td>
+      <td>False</td>
+      <td>Chambermaid</td>
+      <td>Good</td>
+      <td>False</td>
+      <td>True</td>
+      <td>True</td>
+      <td>Night</td>
+      <td>bmr</td>
+      <td>10</td>
+      <td>0</td>
+      <td><button onclick="deleteRow(6);callReload();updateContent();">Delete</button></td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>username</td>
+      <td>Po</td>
+      <td>False</td>
+      <td>Po</td>
+      <td>Evil</td>
+      <td>False</td>
+      <td>False</td>
+      <td>True</td>
+      <td>Day</td>
+      <td>bmr</td>
+      <td>12</td>
+      <td>0</td>
+      <td><button onclick="deleteRow(5);callReload();updateContent();">Delete</button></td>
+    </tr>
+  </tbody>
+</table>
+                    </main>
+                </body>
+                </html>
+                

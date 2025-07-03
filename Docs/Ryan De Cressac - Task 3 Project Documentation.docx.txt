@@ -1,0 +1,610 @@
+﻿BLOOD ON THE CLOCKTOWER GAME TRACKER - 
+PROJECT DOCUMENTATION
+
+
+Name: Ryan De Cressac
+Date: 4/07/2025
+GitHub URL: https://github.com/RyanDeCressac/Unit-3---Personal-Project.git
+________________
+
+
+Table of Contents
+
+
+1. Identifying and Defining
+2. Research and Planning
+3. System Design
+4. Producing and Implementing
+5. Testing and Evaluation
+6. Appendices
+1. Identifying and Defining
+1.1 Problem Statement
+Blood on the Clocktower (BoTC) is an online and in-person social deduction game. Many players of this game tend to track and collect data about their games using rudimentary and inefficient tools such as Google Sheets.
+1.2 Project Purpose and Boundaries
+The BoTC game tracker is designed to allow users to efficiently and accessibly track and collect data on their games by using a user-friendly front-end html interface combined with a python back-end that allows for the interpretation and visualisation of game data. This project will not automatically track games, instead it will require users to input data manually.
+1.3 Stakeholder Requirements
+The stakeholders for this project are BoTC players. 
+The stakeholders expect:
+* An intuitive interface
+* A reliable errorless usage
+* Support for saving and viewing logged games
+* Support for viewing graphical data of logged games
+1.4 Functional Requirements
+Login System
+Allows for users to register and log in to accounts
+Track games
+Allows for users to track games they have played by inputting them through a form-based system
+View, Edit, and Delete Games
+Allows users to view their logged games and to edit or delete any of those games.
+View Graphical Game Data
+Allows users to view their collated game data in a graphical format
+
+
+1.5 Non-Functional Requirements
+Performance
+The BoTC game tracker should take no longer than 5 seconds to complete any given command.
+Security
+The BoTC game tracker should store, transfer, and manage data in such a secure fashion that a malicious actor cannot access any data they are not authorised to access.
+Reliability
+The BoTC game tracker should be functional and should not produce any errors. The project should also give feedback to users upon the input of invalid data.
+Usability
+The BoTC game tracker should use HTML to produce an intuitive and accessible user interface. The project should also function on all mainstream browsers as well as on all mainstream operating systems.
+1.6 Constraints
+Time Constraints
+All components of the BoTC game tracker, including the project itself and documentation, must be completed from the 2nd of May 2025 to the 3rd of July 2025.
+Budget Constraints
+All components of the BoTC game tracker must be comprised of entirely free and/or open-source tools and libraries
+Technical Constraints
+The BoTC game tracker must be entirely composed of Python, HTML, CSS, Javascript, and SQL code as well as Python libraries so as to limit the dependency on external resources.
+________________
+2. Research and Planning
+
+2.1 Development Methodology
+To plan and conduct the development and implementation of this software project, the Agile SDLC was utilised. By using the Agile SDLC, the project had a structured, yet flexible development period as it is designed to allow for a flexibility of plans when presented with unexpected challenges. For example, when encountering unforeseen errors during the development stage, the Agile SDLC allowed for an increased time dedication to the development stage to rectify the errors through the introduction of an additional sprint.
+2.2 Tools and Technology
+Languages
+The project uses the following languages:
+* Python
+* HTML
+* CSS
+* JavaScript
+* and SQL
+IDE
+The IDE of choice is Visual Studio Code
+Libraries
+The project uses the following python libraries:
+* Sqlite3
+* http.server
+* Socketserver
+* urllib
+* Pandas
+* csv
+* json
+* Matplotlib
+* os
+* Shutil
+* Hashlib
+2.3 Gantt Chart / Timeline
+Refer to Figure 1 for the Gantt Chart
+________________
+3. System Design
+Refer to Figure 2.1 for the key for the Context Diagram and the Data Flow Diagrams
+3.1 Context Diagram
+Refer to Figure 2.2
+3.2 Data Flow Diagrams (Level 1 and 2)
+Refer to Figures 2.3 to 2.6
+3.3 Structure Chart
+Refer to Figure 3
+3.4 IPO Chart
+Input
+	Process
+	Output
+	New Username, Password
+	Validates inputs, Create new user in database
+	Update database, direct user to login page
+	Existing Username, Password
+	Validates that the inputs are in the database
+	Direct user to user menu
+	username,
+character, 
+starting character, alignment, 
+starting alignment, 
+win status, 
+death status, 
+death type, 
+script type, 
+player count, 
+traveller count
+	Validates inputs, creates new logged game in database
+	Confirmation Message, Update database
+	Game ID
+	Removes game from database
+	Update database, refresh view games page
+	Game ID,
+username,
+character, 
+starting character, alignment, 
+starting alignment, 
+win status, 
+death status, 
+death type, 
+script type, 
+player count,
+traveller count
+	Validates inputs, edit logged game database with new data
+	Update database, direct user to view games page
+	
+
+3.5 Data Dictionary
+
+Name
+	Type
+	Description
+	username
+	String
+	Stores user’s login name
+	Connection
+	Object
+	Stores the connection to the database
+	cursor
+	Object
+	Stores the cursor for the connection to the database
+	PORT
+	Integer
+	Stores the PORT number
+	df
+	Dataframe
+	Stores the data of a given game
+	id
+	Integer
+	Stores the ID of a given game
+	characterTypeColours
+	Dictionary
+	Stores each type of character and its respective colour
+	teamColours
+	List
+	Stores the Good and Evil team’s colours
+	
+
+________________
+
+
+4. Producing and Implementing
+4.1 Development Process
+To approach the development of the BoTC game tracker, each feature was developed in order of user use, starting with the login feature and ending with the show data feature. Each feature was given an appropriate time to initially develop based upon its complexity. Then, each feature of the project was aesthetically improved so as to allow for increased visual accessibility. Based upon advice given by alpha testers, the features were finally completed.
+4.2 Key Features Developed
+Login System
+As shown in Figure 5.1, the BoTC game tracker has a login system. Users are required to register an account and, upon subsequent uses, are required to log in to that account. This allows multiple users to use the project while preventing malicious actors from accessing other users’ data.
+Menu System
+As shown in Figure 5.2, the BoTC game tracker has a menu system. This allows for users to access all the other features of the project.
+Track games
+As shown in Figure 5.3, the BoTC game tracker, as the name suggests, allows the users to track games. As the pinnacle point of this project, tracking games is a vital feature that allows other features such as viewing and deleting games as well as viewing graphical game data to be possible.
+View and Delete Games
+As shown in Figure 5.4, the BoTC game tracker allows users to view and delete games. This feature allows users to manually access all game data they have tracked as well as allowing them to delete games in case they have made a mistake.
+View Graphical Game Data
+As shown in Figure 5.5, the BoTC game tracker automatically graphically represents users’ logged game data. This allows users to interpret data about their games in a digestible and accessible manner as well as allowing patterns about their games to be unveiled.
+4.3 Version Control Summary
+Figures 4.1 and 4.2 show all the commits up to the 1st of June. The up-to-date commits can be accessed on the Github URL.
+________________
+
+
+5. Testing and Evaluation
+5.1 Testing Methods Used
+Unit testing was implemented to ensure the individual functionality of each module of code. A python script called “test_Botc_Code” contains all unit tests. 
+Integration Testing was implemented to ensure the combined functionality of multiple functions in conjunction with one another. Specifically, the integration test for this project tests the combined functionality of all of the functions responsible for generating game data.
+Alpha testing was implemented as an absolute stress test for the project. By utilising user testers, problems within the code that escaped both the unit and integration testing would be revealed and consequently patched.
+5.2 Test Cases and Results
+Unit Testing
+Refer to Figure 6.1
+Integration testing
+Refer to Figure 6.2
+Alpha Testing
+Although no strict test cases were used for alpha testing, general alpha testing revealed various issues. For example, one of the testers found a run-time error caused by inputting an excessively large number into the traveller_count variable when logging a game. The found run-time error was patched using the following change.
+  
+
+5.3 Evaluation Against Requirements
+The BoTC game tracker possesses a quality login system, game tracking system, and graphical game data system. While the view games system is functional, it is missing the editing feature. For the majority of the project, the performance requirement was successfully completed, although the loading time for the show graphical data feature sometimes goes over the 5 second limit. The program is successfully secure, reliable, and usable.
+5.4 Improvements and Future Work
+If given more time, the project would benefit from a functioning edit button within its view game menu as well as improving the performance of the show graphical data feature. Additionally, the project could benefit from additional logic within the add gam
+
+
+________________
+
+
+6. Appendices
+
+Figure 1 - Gantt Chart
+  
+
+Link to the Gantt Chart
+Figure 2 - Data Flow Diagrams
+Figure 2.1 - Key
+  
+
+Figure 2.2 - Context Diagram
+  
+
+Figure 2.3 - Level 1 DFD
+  
+
+Figure 2.4 - Level 2 DFD for Log Game
+  
+
+Figure 2.5 - Level 2 DFD for Edit and Delete Game
+  
+
+Figure 2.6 - Level 2 DFD for Show Game Data
+  
+
+Figure 3 - Structure Chart
+  
+
+Figure 4 - Git Commits
+Figure 4.1 - Git Commits from 1st of June to 1st of July
+  
+
+Figure 4.2 - Git Commits from 8th of April to the 31st of May
+  
+
+Figure 5 - Project Screenshots
+Figure 5.1 - Login Screen
+  
+
+Figure 5.2 - Menu Screen
+  
+
+Figure 5.3 - Log Game Screen
+  
+
+Figure 5.4 - Show Games Screen
+  
+
+Figure 5.5 - Show Game Data Screen
+  
+
+
+
+Figure 6 - Testing Results
+Figure 6.1 - Unit Testing
+Test ID
+	Description
+	Expected Result
+	Actual Result
+	Pass/Fail
+	TC01
+	Register with valid user
+	True
+	True
+	Pass
+	TC02
+	Register with empty username
+	False
+	False
+	Pass
+	TC03
+	Register with empty password
+	False
+	False
+	Pass
+	TC04
+	Register with username too long
+	False
+	False
+	Pass
+	TC05
+	Register with username containing invalid characters
+	False
+	False
+	Pass
+	TC06
+	Register with non-alphanumeric username
+	False
+	False
+	Pass
+	TC07
+	Register with password too short
+	False
+	False
+	Pass
+	TC08
+	Register with password containing angle brackets
+	False
+	False
+	Pass
+	TC09
+	Register with password containing a space
+	False
+	False
+	Pass
+	TC10
+	Register with existing username
+	False
+	False
+	Pass
+	TC11
+	Register with integer username
+	False
+	False
+	Pass
+	TC12
+	Register with integer password
+	False
+	False
+	Pass
+	TC13
+	Input valid data
+	True
+	True
+	Pass
+	TC14
+	Input with missing username
+	False
+	False
+	Pass
+	TC15
+	Input with missing required input
+	False
+	False
+	Pass
+	TC16
+	Input with invalid character
+	False
+	False
+	Pass
+	TC17
+	Input with invalid character_change
+	False
+	False
+	Pass
+	TC18
+	Input with invalid starting_character
+	False
+	False
+	Pass
+	TC19
+	Input with invalid alignment
+	False
+	False
+	Pass
+	TC20
+	Input with invalid alignment_change
+	False
+	False
+	Pass
+	TC21
+	Input with invalid win value
+	False
+	False
+	Pass
+	TC22
+	Input with invalid death value
+	False
+	False
+	Pass
+	TC23
+	Input with invalid death_type
+	False
+	False
+	Pass
+	TC24
+	Input with invalid script_input
+	False
+	False
+	Pass
+	TC25
+	Input with invalid player_count
+	False
+	False
+	Pass
+	TC26
+	Input with invalid traveller_count
+	False
+	False
+	Pass
+	TC27
+	Input with negative traveller_count
+	False
+	False
+	Pass
+	TC28
+	Find Townsfolk
+	Townsfolk
+	Townsfolk
+	Pass
+	TC29
+	Find Outsider
+	Outsider
+	Outsider
+	Pass
+	TC30
+	Find Minion
+	Minion
+	Minion
+	Pass
+	TC31
+	Find Demon
+	Demon
+	Demon
+	Pass
+	TC32
+	Find Traveller
+	Traveller
+	Traveller
+	Pass
+	TC33
+	Find No Match
+	None
+	None
+	Pass
+	TC34
+	Valid Login
+	True
+	True
+	Pass
+	TC35
+	Login with Invalid username
+	False
+	False
+	Pass
+	TC36
+	Login with Invalid password
+	False
+	False
+	Pass
+	TC37
+	Login with empty database
+	False
+	False
+	Pass
+	TC38
+	Check username when it does exist
+	True
+	True
+	Pass
+	TC39
+	Check username when it doesn’t  exist
+	False
+	False
+	Pass
+	TC40
+	Get total games - all good
+	(3, 3, 0)
+	(3, 3, 0)
+	Pass
+	TC41
+	Get total games - all evil
+	(2, 0, 2)
+	(2, 0, 2)
+	Pass
+	TC42
+	Get total games - mixed
+	(4, 2, 2)
+	(4, 2, 2)
+	Pass
+	TC43
+	Get total games - empty
+	(0, 0, 0)
+	(0, 0, 0)
+	Pass
+	TC44
+	Get win stats - all good wins
+	(2, 2, 0, 2, 0)
+	(2, 2, 0, 2, 0)
+	Pass
+	TC45
+	Get win stats - all evil wins
+	(2, 0, 2, 0, 2)
+	(2, 0, 2, 0, 2)
+	Pass
+	TC46
+	Get win stats - all mixed wins
+	(2, 1, 1, 2, 2)
+	(2, 1, 1, 2, 2)
+	Pass
+	TC47
+	Get win stats - no data
+	(0, 0, 0, 0, 0)
+	(0, 0, 0, 0, 0)
+	Pass
+	TC48
+	Get starting alignment stats - all good
+	(2, 0)
+	(2, 0)
+	Pass
+	TC49
+	Get starting alignment stats - all evil
+	(0, 2)
+	(0, 2)
+	Pass
+	TC50
+	Get starting alignment stats - mixed
+	(2, 2)
+	(2, 2)
+	Pass
+	TC51
+	Get starting alignment stats - no data
+	(0, 0)
+	(0, 0)
+	Pass
+	TC52
+	Get change stats - no change only
+	(2, 0, 0, 0)
+	(2, 0, 0, 0)
+	Pass
+	TC53
+	Get change stats - character change only
+	(0, 2, 0, 0)
+	(0, 2, 0, 0)
+	Pass
+	TC54
+	Get change stats - alignment change only
+	(0, 0, 2, 0)
+	(0, 0, 2, 0)
+	Pass
+	TC55
+	Get change stats - all change only
+	(0, 0, 0, 2)
+	(0, 0, 0, 2)
+	Pass
+	TC56
+	Get change stats - mixed
+	(1, 1, 1, 1)
+	(1, 1, 1, 1)
+	Pass
+	TC57
+	Get starting character stats - 1 of set
+	(1, 1, 1, 1, 1)
+	(1, 1, 1, 1, 1)
+	Pass
+	TC58
+	Get starting character stats - empty set
+	(0, 0, 0, 0, 0)
+	(0, 0, 0, 0, 0)
+	Pass
+	TC59
+	Get starting character stats - multiples set
+	(0, 0, 3, 0, 0)
+	(0, 0, 3, 0, 0)
+	Pass
+	TC60
+	Get script stats - all combinations
+	(2, 2, 2, 2, 1, 1, 1, 1)
+	(2, 2, 2, 2, 1, 1, 1, 1)
+	Pass
+	TC61
+	Get script stats - no data
+	(0, 0, 0, 0, 0, 0, 0, 0)
+	(0, 0, 0, 0, 0, 0, 0, 0)
+	Pass
+	TC62
+	Get script stats - single script only
+	(3, 0, 0, 0, 2, 0, 0, 0)
+	(3, 0, 0, 0, 2, 0, 0, 0)
+	Pass
+	TC63
+	Get character count - basic test
+	{'B': 3, 'A': 2, 'C': 1}, {'C': 3, 'A': 2, 'B': 1}
+	{'B': 3, 'A': 2, 'C': 1}, {'C': 3, 'A': 2, 'B': 1}
+	Pass
+	TC64
+	Get character count - no data
+	[]
+	[]
+	Pass
+	Figure 6.2 - Integration Testing
+TC65
+	Get character stats (integrating findCharacterType()) - basic test
+	(1, 1, 1, 1, 1, 1, 0, 1, 0, 1)
+	(1, 1, 1, 1, 1, 1, 0, 1, 0, 1)
+	Pass
+	TC66
+	Get character stats (integrating findCharacterType()) - no data
+	(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+	(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+	Pass
+	TC67
+	Fetch Data (integrating all statistical functions) - basic test
+	See figure 6.3
+	See figure 6.3
+	Pass
+	Figure 6.3 - Fetch Data Basic Test Expected Outcome and Result

@@ -24,3 +24,10 @@ The Blood on the Clocktower (BoTC) game tracker is a project designed to allow p
 - A form-based log game page that allows for the simple tracking of games
 - A view game page that allows for the viewing and deletion of any logged games
 - A show data page that graphically shows interesting data about the logged games
+
+## Common Errors
+#### The pip install for the requirements text file isn't working!
+Try entering 'py -m pip install -r requirements.txt' instead
+
+#### The program can't locate the graphs folder
+Try creating a folder named 'graphs'
